@@ -482,7 +482,7 @@ wd_info = &#39;\nCurrent working directory: &#39;
 infos = time_info+time_+wd_info+wd
 
 print(infos)
-## Time: Thu Jan 29 12:04:21 2026
+## Time: Thu Jan 29 13:00:44 2026
 ## Current working directory: /Users/peltouz/Documents/GitHub/M1-S2-DS2E-SE</code></pre>
 </div>
 </div>
@@ -580,15 +580,15 @@ Current working directory: {wd}&#39;&#39;&#39;.format(t = time.ctime(time.time()
   
 
 get_infos()
-## Time: Thu Jan 29 12:04:21 2026
+## Time: Thu Jan 29 13:00:44 2026
 ## Current working directory: /Users/peltouz/Documents/GitHub/M1-S2-DS2E-SE
 
 get_infos_2()
-## Time: Thu Jan 29 12:04:21 2026 
+## Time: Thu Jan 29 13:00:44 2026 
 ## Current working directory: /Users/peltouz/Documents/GitHub/M1-S2-DS2E-SE
 
 get_infos_3()
-## Time: Thu Jan 29 12:04:21 2026 
+## Time: Thu Jan 29 13:00:44 2026 
 ## Current working directory: /Users/peltouz/Documents/GitHub/M1-S2-DS2E-SE</code></pre>
 </div>
 </div>
@@ -937,7 +937,7 @@ re.findall(&#39;top-[15]&#39;,abstract)
 
 # you can also create an iterator
 re.finditer(&#39;[0-9]&#39;,abstract)
-## &lt;callable_iterator object at 0x113fd4e50&gt;</code></pre>
+## &lt;callable_iterator object at 0x1261ee400&gt;</code></pre>
 </div>
 </div>
 <p>
@@ -1286,7 +1286,10 @@ def get_page(urlpage):
     return res.text
 
 urlpage = &#39;https://www.crous-strasbourg.fr/restaurant/resto-u-esplanade/&#39;
-print(get_page(urlpage))</code></pre>
+page = get_page(urlpage)
+
+menus = re.findall(r&#39;&lt;div class=&quot;menu&quot;&gt;.*?&lt;/ul&gt;\s*&lt;/div&gt;\s*&lt;/div&gt;&#39;, page, re.DOTALL)
+</code></pre>
 <p><a href="resto_u_explication.html">Detailled solution</a></p>
 <!--
 resto_u_explication.html
