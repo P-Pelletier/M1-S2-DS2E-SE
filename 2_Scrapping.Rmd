@@ -227,6 +227,7 @@ python test_selenium.py
 - "chromedriver not found": Install webdriver-manager with `pip install webdriver-manager`
 - "Chrome not found": Make sure Google Chrome is installed on your computer
 - "Session not created": Your ChromeDriver version doesn't match your Chrome version. Using webdriver-manager should prevent this.
+
 </details>  
 
 </div>
@@ -282,7 +283,21 @@ To extract data from a web page, we need to locate the HTML elements that contai
 
 ### Locator Strategies
 
-Selenium can find elements using different strategies:
+Selenium can find elements using different strategies. To know which class name, ID, or CSS selector to use, you need to inspect the HTML of the page:
+
+1. Open the webpage in your browser (Chrome, Firefox, etc.)
+2. Right-click on the element you want to scrape
+3. Select "Inspect" or "Inspect Element" (this open the Developer Tools)
+4. The browser show you the HTML code for that element
+5. Look for attributes like `class`, `id`, or note the tag name
+6. Use these in your Selenium code
+
+**Example:** If you see `<div class="restaurant-name" id="resto-123">Le Resto</div>`, you can find it by:
+
+- ID: `driver.find_element(By.ID, "resto-123")`
+- Class: `driver.find_element(By.CLASS_NAME, "restaurant-name")`
+- CSS: `driver.find_element(By.CSS_SELECTOR, "div.restaurant-name")`
+- Tag: `driver.find_element(By.TAG_NAME, "div")` (but this will find the first div, not necessarily the one you want)
 
 
 ```{r, echo=FALSE, results='asis'}
@@ -360,6 +375,7 @@ Now you can see how each Selenium locator maps to the HTML code above:
 
 
 **Important:** 
+
 - `find_element()` (singular) return only the first matching element
 - `find_elements()` (plural) return a list of all matching elements
 
@@ -398,23 +414,6 @@ driver.quit()
 
 </div>
 </div>
-
-### How to Find the Right Selector
-
-To know which class name, ID, or CSS selector to use, you need to inspect the HTML of the page:
-
-1. Open the webpage in your browser (Chrome, Firefox, etc.)
-2. Right-click on the element you want to scrape
-3. Select "Inspect" or "Inspect Element" (this open the Developer Tools)
-4. The browser show you the HTML code for that element
-5. Look for attributes like `class`, `id`, or note the tag name
-6. Use these in your Selenium code
-
-**Example:** If you see `<div class="restaurant-name" id="resto-123">Le Resto</div>`, you can find it by:
-- ID: `driver.find_element(By.ID, "resto-123")`
-- Class: `driver.find_element(By.CLASS_NAME, "restaurant-name")`
-- CSS: `driver.find_element(By.CSS_SELECTOR, "div.restaurant-name")`
-- Tag: `driver.find_element(By.TAG_NAME, "div")` (but this will find the first div, not necessarily the one you want)
 
 <p>&nbsp;</p>
 
@@ -466,6 +465,7 @@ finally:
 One of the most common problem in web scraping is trying to access an element before it has loaded on the page. If you try to find an element that is not yet in the page, Selenium will raise an error.
 
 Using `time.sleep()` is not ideal because:
+
 - You don't know exactly how long the page will take to load
 - If you set a too short time, the element may not be loaded yet
 - If you set a too long time, you waste time waiting when the page is already loaded
@@ -762,6 +762,7 @@ driver.quit()
 </div>
 
 Useful keys from `Keys` class:
+
 - `Keys.RETURN` or `Keys.ENTER` - Enter key
 - `Keys.TAB` - Tab key
 - `Keys.ESCAPE` - Escape key
@@ -869,6 +870,39 @@ driver.quit()
 <p>&nbsp;</p>
 
 # Options
+
+## User Agents
+
+When Selenium controls a browser, it sends a "User Agent" string that identifies the browser to the website. By default, Selenium's User Agent often includes "HeadlessChrome" or other indicators that reveal you're using automation, which some websites may block.
+
+Many websites check the User Agent to detect bots and may refuse to serve content or show different content to automated browsers. You can set a custom User Agent to make your Selenium browser appear like a regular user's browser:
+
+<div class = "row">
+<div class = "python">
+
+```python
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+
+chrome_options = Options()
+
+user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+chrome_options.add_argument(f"user-agent={user_agent}")
+
+driver = webdriver.Chrome(
+    service=Service(ChromeDriverManager().install()),
+    options=chrome_options
+)
+
+driver.get("https://www.example.com")
+
+```
+
+</div>
+</div>
+
 
 ## Headless Mode
 

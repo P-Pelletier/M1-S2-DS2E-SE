@@ -688,7 +688,31 @@ to find elements.</p>
 <div id="locator-strategies" class="section level3" number="2.2.1">
 <h3><span class="header-section-number">2.2.1</span> Locator
 Strategies</h3>
-<p>Selenium can find elements using different strategies:</p>
+<p>Selenium can find elements using different strategies. To know which
+class name, ID, or CSS selector to use, you need to inspect the HTML of
+the page:</p>
+<ol style="list-style-type: decimal">
+<li>Open the webpage in your browser (Chrome, Firefox, etc.)</li>
+<li>Right-click on the element you want to scrape</li>
+<li>Select “Inspect” or “Inspect Element” (this open the Developer
+Tools)</li>
+<li>The browser show you the HTML code for that element</li>
+<li>Look for attributes like <code>class</code>, <code>id</code>, or
+note the tag name</li>
+<li>Use these in your Selenium code</li>
+</ol>
+<p><strong>Example:</strong> If you see
+<code>&lt;div class="restaurant-name" id="resto-123"&gt;Le Resto&lt;/div&gt;</code>,
+you can find it by:</p>
+<ul>
+<li>ID: <code>driver.find_element(By.ID, "resto-123")</code></li>
+<li>Class:
+<code>driver.find_element(By.CLASS_NAME, "restaurant-name")</code></li>
+<li>CSS:
+<code>driver.find_element(By.CSS_SELECTOR, "div.restaurant-name")</code></li>
+<li>Tag: <code>driver.find_element(By.TAG_NAME, "div")</code> (but this
+will find the first div, not necessarily the one you want)</li>
+</ul>
 <style>
   .html-code {
     font-family: "Courier New", monospace;
@@ -816,9 +840,13 @@ align="right"><code>driver.find_element(By.NAME, "username")</code></td>
 </tr>
 </tbody>
 </table>
-<p><strong>Important:</strong> - <code>find_element()</code> (singular)
-return only the first matching element - <code>find_elements()</code>
-(plural) return a list of all matching elements</p>
+<p><strong>Important:</strong></p>
+<ul>
+<li><code>find_element()</code> (singular) return only the first
+matching element</li>
+<li><code>find_elements()</code> (plural) return a list of all matching
+elements</li>
+</ul>
 <div class="row">
 <div class="python">
 <pre class="python"><code>from selenium import webdriver
@@ -850,32 +878,6 @@ time.sleep(3)
 driver.quit()</code></pre>
 </div>
 </div>
-</div>
-<div id="how-to-find-the-right-selector" class="section level3"
-number="2.2.2">
-<h3><span class="header-section-number">2.2.2</span> How to Find the
-Right Selector</h3>
-<p>To know which class name, ID, or CSS selector to use, you need to
-inspect the HTML of the page:</p>
-<ol style="list-style-type: decimal">
-<li>Open the webpage in your browser (Chrome, Firefox, etc.)</li>
-<li>Right-click on the element you want to scrape</li>
-<li>Select “Inspect” or “Inspect Element” (this open the Developer
-Tools)</li>
-<li>The browser show you the HTML code for that element</li>
-<li>Look for attributes like <code>class</code>, <code>id</code>, or
-note the tag name</li>
-<li>Use these in your Selenium code</li>
-</ol>
-<p><strong>Example:</strong> If you see
-<code>&lt;div class="restaurant-name" id="resto-123"&gt;Le Resto&lt;/div&gt;</code>,
-you can find it by: - ID:
-<code>driver.find_element(By.ID, "resto-123")</code> - Class:
-<code>driver.find_element(By.CLASS_NAME, "restaurant-name")</code> -
-CSS:
-<code>driver.find_element(By.CSS_SELECTOR, "div.restaurant-name")</code>
-- Tag: <code>driver.find_element(By.TAG_NAME, "div")</code> (but this
-will find the first div, not necessarily the one you want)</p>
 <p>
  
 </p>
@@ -929,11 +931,14 @@ Elements</h2>
 <p>One of the most common problem in web scraping is trying to access an
 element before it has loaded on the page. If you try to find an element
 that is not yet in the page, Selenium will raise an error.</p>
-<p>Using <code>time.sleep()</code> is not ideal because: - You don’t
-know exactly how long the page will take to load - If you set a too
-short time, the element may not be loaded yet - If you set a too long
-time, you waste time waiting when the page is already loaded - Network
-speed and server response time can vary</p>
+<p>Using <code>time.sleep()</code> is not ideal because:</p>
+<ul>
+<li>You don’t know exactly how long the page will take to load</li>
+<li>If you set a too short time, the element may not be loaded yet</li>
+<li>If you set a too long time, you waste time waiting when the page is
+already loaded</li>
+<li>Network speed and server response time can vary</li>
+</ul>
 <p>Selenium provide better ways to wait for elements to appear.</p>
 <div id="implicit-waits" class="section level3" number="2.3.1">
 <h3><span class="header-section-number">2.3.1</span> Implicit Waits</h3>
@@ -1241,13 +1246,18 @@ time.sleep(3)
 driver.quit()</code></pre>
 </div>
 </div>
-<p>Useful keys from <code>Keys</code> class: - <code>Keys.RETURN</code>
-or <code>Keys.ENTER</code> - Enter key - <code>Keys.TAB</code> - Tab key
-- <code>Keys.ESCAPE</code> - Escape key - <code>Keys.BACK_SPACE</code> -
-Backspace - <code>Keys.DELETE</code> - Delete -
-<code>Keys.ARROW_DOWN</code>, <code>Keys.ARROW_UP</code> - Arrow keys -
-<code>Keys.CONTROL</code>, <code>Keys.ALT</code>,
-<code>Keys.SHIFT</code> - Modifier keys</p>
+<p>Useful keys from <code>Keys</code> class:</p>
+<ul>
+<li><code>Keys.RETURN</code> or <code>Keys.ENTER</code> - Enter key</li>
+<li><code>Keys.TAB</code> - Tab key</li>
+<li><code>Keys.ESCAPE</code> - Escape key</li>
+<li><code>Keys.BACK_SPACE</code> - Backspace</li>
+<li><code>Keys.DELETE</code> - Delete</li>
+<li><code>Keys.ARROW_DOWN</code>, <code>Keys.ARROW_UP</code> - Arrow
+keys</li>
+<li><code>Keys.CONTROL</code>, <code>Keys.ALT</code>,
+<code>Keys.SHIFT</code> - Modifier keys</li>
+</ul>
 <p>You can also clear an input field before typing:</p>
 <pre class="python"><code>input_field.clear()  # Remove any existing text
 input_field.send_keys(&quot;new text&quot;)  # Type new text</code></pre>
@@ -1346,8 +1356,40 @@ driver.quit()</code></pre>
 </div>
 <div id="options" class="section level1" number="3">
 <h1><span class="header-section-number">3</span> Options</h1>
-<div id="headless-mode" class="section level2" number="3.1">
-<h2><span class="header-section-number">3.1</span> Headless Mode</h2>
+<div id="user-agents" class="section level2" number="3.1">
+<h2><span class="header-section-number">3.1</span> User Agents</h2>
+<p>When Selenium controls a browser, it sends a “User Agent” string that
+identifies the browser to the website. By default, Selenium’s User Agent
+often includes “HeadlessChrome” or other indicators that reveal you’re
+using automation, which some websites may block.</p>
+<p>Many websites check the User Agent to detect bots and may refuse to
+serve content or show different content to automated browsers. You can
+set a custom User Agent to make your Selenium browser appear like a
+regular user’s browser:</p>
+<div class="row">
+<div class="python">
+<pre class="python"><code>from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+
+chrome_options = Options()
+
+user_agent = &quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36&quot;
+chrome_options.add_argument(f&quot;user-agent={user_agent}&quot;)
+
+driver = webdriver.Chrome(
+    service=Service(ChromeDriverManager().install()),
+    options=chrome_options
+)
+
+driver.get(&quot;https://www.example.com&quot;)
+</code></pre>
+</div>
+</div>
+</div>
+<div id="headless-mode" class="section level2" number="3.2">
+<h2><span class="header-section-number">3.2</span> Headless Mode</h2>
 <p>By default, Selenium open a visible browser window. This is useful
 for development and debugging because you can see what happen. However,
 for production scraping or when you run scripts on a server without a
@@ -1381,8 +1423,8 @@ driver.quit()</code></pre>
 </div>
 </div>
 <div id="handling-pop-ups-and-alerts" class="section level2"
-number="3.2">
-<h2><span class="header-section-number">3.2</span> Handling Pop-ups and
+number="3.3">
+<h2><span class="header-section-number">3.3</span> Handling Pop-ups and
 Alerts</h2>
 <div class="row">
 <div class="python">
@@ -1404,8 +1446,8 @@ driver.quit()</code></pre>
 </div>
 </div>
 <div id="error-handling-and-best-practices" class="section level2"
-number="3.3">
-<h2><span class="header-section-number">3.3</span> Error Handling and
+number="3.4">
+<h2><span class="header-section-number">3.4</span> Error Handling and
 Best Practices</h2>
 <p>When scraping websites, many things can go wrong: network errors,
 elements not found, timeouts, etc. It’s important to handle errors
