@@ -618,13 +618,10 @@ def get_page(urlpage):
     return res.text
 
 urlpage = 'https://www.crous-strasbourg.fr/restaurant/resto-u-esplanade/'
-page = get_page(urlpage)
-
-menus = re.findall(r'<div class="menu">.*?</ul>\s*</div>\s*</div>', page, re.DOTALL)
-
+print(get_page(urlpage))
 ```
 
-<a href="resto_u_explication.html">Detailled solution</a> 
+<a href="resto_u_solution.html">Detailled solution</a> 
 
 
 <!--

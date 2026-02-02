@@ -1,0 +1,1052 @@
+---
+title: "Web Scraping"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,error=TRUE,collapse = T)
+library(reticulate)
+```
+
+<style>
+div.python pre { background-color: #e9f7f5; }
+</style>
+
+<style>
+div.r pre { background-color: #fff5fd; }
+</style>
+
+
+# Selenium
+
+Web scraping is the process of automatically extracting data from websites. Instead of manually copying information from web pages, we write programs that can do this task for us. This is very useful when you need to collect large amount of data from multiple pages or when you need to update data regularly.
+
+When you visit a website with your browser, the server sends HTML code that your browser interprets and display as a nice looking page. Web scraping consist of:
+
+1. Sending a request to the web server to get the HTML content
+2. Parsing the HTML to find the information we need
+3. Extracting and storing this information in a structured format
+
+Before scraping any website, you should always:
+
+- Check the website's `robots.txt` file (for example: `https://www.crous-strasbourg.fr/robots.txt`) to see what the website allow to scrape
+
+```
+User-agent: *
+Disallow: /gf-entries-in-excel/
+Disallow: /gravityexport-lite/
+Disallow: /gravityexport/
+
+Disallow: /wp-admin/
+Allow: /wp-admin/admin-ajax.php
+
+Sitemap: https://www.crous-strasbourg.fr/sitemap_index.xml
+```
+
+What's NOT there:
+```
+Disallow: /
+```
+
+- Read the website's Terms of Service carefully
+- Respect the server by not sending too many requests in a short time (always add delays between requests)
+
+ 
+
+Some websites have APIs (Application Programming Interfaces) that allow you to get data in a cleaner way. **Always** check if an API is available before scraping.
+
+There are two main approaches to web scraping in Python:
+
+**Beautiful Soup** is a library that parse HTML and allow you to extract data from it. It is fast and simple to use, but it have some limitations:
+
+- It only work with static HTML content that is already in the page source
+- It cannot interact with JavaScript that load content dynamically
+- It cannot click buttons, fill forms, or wait for elements to appear
+- It cannot handle websites where content is loaded after the page is displayed
+
+**Selenium** is a web automation framework that control a real web browser. It is more powerful because:
+
+- It can handle websites that use JavaScript to load content dynamically (which is very common today)
+- It can interact with web pages like a human user (click buttons, fill forms, scroll, etc.)
+- It render the page exactly as you see it in your browser
+- It can wait for specific elements to appear on the page before trying to access them
+- It can handle complex interactions like login, navigation through multiple pages, etc.
+
+
+## Setting Up Your Environment
+
+A virtual environment is an isolated Python environment where you can install packages without affecting your system's Python installation. When you activate a virtual environment, Python will use only the packages installed in that environment, not the ones installed globally on your system.
+
+The process is slightly different between Windows and Mac/Linux, but the concept is the same.
+
+**For Windows:**
+
+To create a virtual environment on Windows, follow these steps:
+
+1. Open Command Prompt (cmd) or PowerShell
+2. Navigate to your course folder using the `cd` command
+3. Create the virtual environment with `python -m venv name`
+4. Activate it with `name\Scripts\activate`
+
+**For Mac/Linux:**
+
+The process is similar on Mac and Linux, but with some small differences:
+
+1. Open Terminal
+2. Navigate to your course folder using the `cd` command
+3. Create the virtual environment with `python3 -m venv name`
+4. Activate it with `source name/bin/activate`
+
+
+Important notes:
+
+- You need to activate the virtual environment every time you open a new terminal/command prompt and want to work on your project
+- The folder `name` (or whatever name you choose) contain all the packages for your environment. Don't delete it!
+- You can add `name/` to your `.gitignore` file if you use Git, because other people can recreate the environment from a requirements file (requirements.txt)
+
+<p>&nbsp;</p>
+
+<div style="border:1px solid; padding:10px; margin-bottom:10px; border-radius: 10px; background-color: #f9f9f9;">
+
+**Exercise 1:** Create a virtual environment in your course folder and install the packages `selenium` and `pandas`. Then verify that the packages are correctly installed.
+
+<details>
+<summary>Click here to see the solution</summary>
+
+**Solution:**
+```{python, eval=FALSE}
+# Open Terminal
+# Navigate to your course folder (adapt the path to your situation)
+cd C:\Users\YourName\Documents\programming_course
+
+# Create the virtual environment
+python -m venv name
+
+# Activate it (Windows)
+name\Scripts\activate
+# Activate it (Linux/Mac)
+source name/bin/activate
+
+# You should see (name) before your path now
+
+# Install the required packages
+pip install selenium
+pip install pandas
+
+# Verify that the packages are installed
+pip list
+# You should see selenium and pandas in the list, along with their dependencies
+
+# The output should look something like this:
+# Package            Version
+# ------------------ -------
+# pandas             2.1.0
+# selenium           4.15.0
+# ...
+```
+
+</details>  
+
+</div>
+
+<p>&nbsp;</p>
+
+## Installing Selenium WebDriver
+
+Selenium need a WebDriver to control your web browser. A WebDriver is a program that act as a bridge between your Python code and your web browser (Chrome, Firefox, Edge, etc.). Without the WebDriver, Selenium cannot open or control the browser.
+
+Each browser have its own WebDriver:
+
+- **ChromeDriver** - for Google Chrome (most popular and recommended)
+- **GeckoDriver** - for Mozilla Firefox
+- **EdgeDriver** - for Microsoft Edge
+- **SafariDriver** - for Safari (already included in Safari)
+
+We will use ChromeDriver in this course because Chrome is widely used and well supported by Selenium.
+
+The easiest way to install and manage the WebDriver is to use the `webdriver-manager` package. This package automatically download and install the correct version of the WebDriver that match your browser version. You don't need to worry about downloading files manually or putting them in the right folder.
+
+<div class = "row">
+<div class = "python">
+
+```{python, eval=FALSE}
+# First, make sure your virtual environment is activated
+# Then install webdriver-manager
+pip install webdriver-manager
+
+# Now in your Python code, you can use it like this:
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+
+# Automatically download the correct ChromeDriver the first time you run it, and reuse it in subsequent runs
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+
+# Now you can use the driver to control Chrome
+driver.get("https://www.google.com")
+
+# Don't forget to close the browser when you're done
+driver.quit()
+```
+
+</div>
+</div>
+
+<p>&nbsp;</p>
+
+<div style="border:1px solid; padding:10px; margin-bottom:10px; border-radius: 10px; background-color: #f9f9f9;">
+
+**Exercise 2:** Install ChromeDriver using webdriver-manager and write a simple script that open Wiklipedia, wait 3 seconds, and close the browser.
+
+<details>
+<summary>Click here to see the solution</summary>
+```{python, eval=FALSE}
+# Make sure your virtual environment is activated!
+
+# Install webdriver-manager if not already done
+# pip install webdriver-manager
+
+# Create a file named test_selenium.py with this content:
+
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+import time
+
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+driver.get("https://www.wikipedia.org/")
+time.sleep(3)
+driver.quit()
+```
+
+To run this script:
+```{python, eval=FALSE}
+# In your terminal/command prompt (with name activated):
+python test_selenium.py
+```
+
+- "chromedriver not found": Install webdriver-manager with `pip install webdriver-manager`
+- "Chrome not found": Make sure Google Chrome is installed on your computer
+- "Session not created": Your ChromeDriver version doesn't match your Chrome version. Using webdriver-manager should prevent this.
+</details>  
+
+</div>
+
+<p>&nbsp;</p>
+
+# Basic Web Scraping
+
+
+## Opening a Web Page
+
+
+<div class = "row">
+<div class = "python">
+
+```{python, eval=FALSE}
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+import time
+
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+
+driver.get("https://www.example.com")
+
+print("Page title:", driver.title)
+
+print("Current URL:", driver.current_url)
+
+page_source = driver.page_source
+print("Page source length:", len(page_source), "characters")
+time.sleep(3)
+driver.quit()
+```
+
+</div>
+</div>
+
+Important methods:
+
+Method | Description
+-|-:
+`driver.get(url)` | Open a webpage
+`driver.title` | Get the page title
+`driver.current_url` | Get the current URL
+`driver.page_source` | Get all the HTML of the page
+`driver.quit()` | Close the browser and end the session
+`driver.close()` | Close only the current window (use quit() to close everything)
+
+## Finding Elements on a Page
+
+To extract data from a web page, we need to locate the HTML elements that contain the information we want. Selenium provide several methods to find elements.
+
+### Locator Strategies
+
+Selenium can find elements using different strategies:
+
+
+```{r, echo=FALSE, results='asis'}
+cat('
+<style>
+  .html-code {
+    font-family: "Courier New", monospace;
+    background-color: #f5f5f5;
+    padding: 20px;
+    border: 1px solid #ccc;
+    overflow-x: auto;
+    line-height: 1.8;
+  }
+  .id-highlight { background-color: #ffcccc; font-weight: bold; }
+  .class-highlight { background-color: #cce5ff; font-weight: bold; }
+  .tag-highlight { background-color: #ccffcc; font-weight: bold; }
+  .name-highlight { background-color: #ffccff; font-weight: bold; }
+  .link-text-highlight { background-color: #ffffcc; font-weight: bold; }
+</style>
+
+<div class="html-code">
+&lt;!DOCTYPE html&gt;<br>
+&lt;html&gt;<br>
+&lt;head&gt;<br>
+&nbsp;&nbsp;&lt;title&gt;Example Page&lt;/title&gt;<br>
+&lt;/head&gt;<br>
+&lt;body&gt;<br>
+<br>
+&nbsp;&nbsp;&lt;!-- 🔴 ID locator --&gt;<br>
+&nbsp;&nbsp;&lt;input type="text" <span class="id-highlight">id="search-box"</span> placeholder="Search here"&gt;<br>
+<br>
+&nbsp;&nbsp;&lt;!-- 🔵 CLASS locator --&gt;<br>
+&nbsp;&nbsp;&lt;div <span class="class-highlight">class="article"</span>&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;This is an article&lt;/p&gt;<br>
+&nbsp;&nbsp;&lt;/div&gt;<br>
+<br>
+&nbsp;&nbsp;&lt;!-- 🟢 TAG locator --&gt;<br>
+&nbsp;&nbsp;&lt;<span class="tag-highlight">h1</span>&gt;Main Title&lt;/<span class="tag-highlight">h1</span>&gt;<br>
+<br>
+&nbsp;&nbsp;&lt;!-- 🟠 CSS SELECTOR: div.menu > h2 --&gt;<br>
+&nbsp;&nbsp;&lt;div <span class="class-highlight">class="menu"</span>&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;<span class="tag-highlight">h2</span>&gt;Submenu Title&lt;/<span class="tag-highlight">h2</span>&gt;<br>
+&nbsp;&nbsp;&lt;/div&gt;<br>
+<br>
+&nbsp;&nbsp;&lt;!-- 🟡 LINK TEXT locator --&gt;<br>
+&nbsp;&nbsp;&lt;a href="/home"&gt;<span class="link-text-highlight">Click here</span>&lt;/a&gt;<br>
+<br>
+&nbsp;&nbsp;&lt;!-- 🟣 NAME locator --&gt;<br>
+&nbsp;&nbsp;&lt;input type="text" <span class="name-highlight">name="username"</span> placeholder="Enter username"&gt;<br>
+<br>
+&lt;/body&gt;<br>
+&lt;/html&gt;
+</div>
+')
+```
+
+- 🔴 **Red background**: `id` attribute
+- 🔵 **Blue background**: `class` attribute  
+- 🟢 **Green background**: HTML tag name (like `<h1>`, `<h2>`)
+- 🟣 **Purple background**: `name` attribute
+- 🟡 **Yellow background**: Text content inside links
+
+Now you can see how each Selenium locator maps to the HTML code above:
+
+| Strategy | Method | Example | What it targets in HTML |
+|----------|:-------|--------:|------------------------|
+| ID | `find_element(By.ID, "id")` | `driver.find_element(By.ID, "search-box")` | 🔴 The `id="search-box"` attribute |
+| Class name | `find_element(By.CLASS_NAME, "class")` | `driver.find_element(By.CLASS_NAME, "article")` | 🔵 The `class="article"` attribute |
+| Tag name | `find_element(By.TAG_NAME, "tag")` | `driver.find_element(By.TAG_NAME, "h1")` | 🟢 The `<h1>` tag itself |
+| CSS selector | `find_element(By.CSS_SELECTOR, "selector")` | `driver.find_element(By.CSS_SELECTOR, "div.menu > h2")` | 🟠 The `<h2>` that is a direct child of `<div class="menu">` |
+| XPath | `find_element(By.XPATH, "xpath")` | `driver.find_element(By.XPATH, "//div[@class='menu']")` | Any `<div>` with `class="menu"` |
+| Link text | `find_element(By.LINK_TEXT, "text")` | `driver.find_element(By.LINK_TEXT, "Click here")` | 🟡 The link containing exactly "Click here" |
+| Partial link text | `find_element(By.PARTIAL_LINK_TEXT, "text")` | `driver.find_element(By.PARTIAL_LINK_TEXT, "Click")` | 🟡 Any link containing "Click" |
+| Name | `find_element(By.NAME, "name")` | `driver.find_element(By.NAME, "username")` | 🟣 The `name="username"` attribute |
+
+
+**Important:** 
+- `find_element()` (singular) return only the first matching element
+- `find_elements()` (plural) return a list of all matching elements
+
+<div class = "row">
+<div class = "python">
+
+```{python, eval=FALSE}
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+import time
+
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+
+driver.get("https://www.wikipedia.org")
+
+time.sleep(2)
+
+search_box = driver.find_element(By.ID, "searchInput")
+print("Found search box:", search_box)
+
+links = driver.find_elements(By.CLASS_NAME, "central-featured-lang")
+print(f"Found {len(links)} language links")
+
+headers = driver.find_elements(By.TAG_NAME, "h1")
+for header in headers:
+    print("Header text:", header.text)
+
+all_icons = driver.find_elements(By.CSS_SELECTOR, "div.sprite")
+print(f"Found {len(all_icons)} icons")
+
+time.sleep(3)
+driver.quit()
+```
+
+</div>
+</div>
+
+### How to Find the Right Selector
+
+To know which class name, ID, or CSS selector to use, you need to inspect the HTML of the page:
+
+1. Open the webpage in your browser (Chrome, Firefox, etc.)
+2. Right-click on the element you want to scrape
+3. Select "Inspect" or "Inspect Element" (this open the Developer Tools)
+4. The browser show you the HTML code for that element
+5. Look for attributes like `class`, `id`, or note the tag name
+6. Use these in your Selenium code
+
+**Example:** If you see `<div class="restaurant-name" id="resto-123">Le Resto</div>`, you can find it by:
+- ID: `driver.find_element(By.ID, "resto-123")`
+- Class: `driver.find_element(By.CLASS_NAME, "restaurant-name")`
+- CSS: `driver.find_element(By.CSS_SELECTOR, "div.restaurant-name")`
+- Tag: `driver.find_element(By.TAG_NAME, "div")` (but this will find the first div, not necessarily the one you want)
+
+<p>&nbsp;</p>
+
+<div style="border:1px solid; padding:10px; margin-bottom:10px; border-radius: 10px; background-color: #f9f9f9;">
+
+**Exercise 3:** Write a Python script that open "https://www.crous-strasbourg.fr/se-restaurer/ou-manger/" and print:
+1. The page title
+2. The text of the main heading (h1)
+3. The number of restaurants 
+
+<details>
+<summary>Click here to see the solution</summary>
+```{python, eval=FALSE}
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+import time
+
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+
+try:
+    driver.get("https://www.crous-strasbourg.fr/se-restaurer/ou-manger/")
+    time.sleep(2)
+    print("Page title:", driver.title)
+    main_heading = driver.find_element(By.TAG_NAME, "h1")
+    print("Main heading:", main_heading.text)
+    restaurants_names = driver.find_elements(By.CLASS_NAME, "restaurant_title")
+    print(f"Number of restaurant: {len(restaurants_names)}")
+    print("\nFirst restaurants:")
+    for name in restaurants_names[:5]:
+        print("-", name.text)
+    
+except Exception as e:
+    print(f"An error occurred: {e}")
+    
+finally:
+    # Always close the browser, even if an error occurred
+    driver.quit()
+```
+</details>  
+
+</div>
+
+<p>&nbsp;</p>
+
+## Waiting for Elements
+
+One of the most common problem in web scraping is trying to access an element before it has loaded on the page. If you try to find an element that is not yet in the page, Selenium will raise an error.
+
+Using `time.sleep()` is not ideal because:
+- You don't know exactly how long the page will take to load
+- If you set a too short time, the element may not be loaded yet
+- If you set a too long time, you waste time waiting when the page is already loaded
+- Network speed and server response time can vary
+
+Selenium provide better ways to wait for elements to appear.
+
+### Implicit Waits
+
+Implicit waits tell Selenium to wait a maximum amount of time when trying to find an element. If the element is found before this time, Selenium continue immediately. If not, it wait until the timeout and then raise an error.
+
+<div class = "row">
+<div class = "python">
+
+```{python, eval=FALSE}
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+
+# Set implicit wait to 10 seconds
+# This apply to all find_element() calls for this driver
+driver.implicitly_wait(10)
+
+driver.get("https://www.crous-strasbourg.fr/se-restaurer/ou-manger/")
+
+# Selenium will wait up to 10 seconds for this element to appear
+# If it appear after 2 seconds, Selenium continue after 2 seconds
+# If it doesn't appear after 10 seconds, raise an error
+element = driver.find_element(By.ID, "tru_deselect_btn")
+
+driver.quit()
+```
+
+</div>
+</div>
+
+**Important:** The implicit wait is set once for the driver and apply to all subsequent operations. You don't need to set it again for each element.
+
+### Explicit Waits
+
+Explicit waits are more flexible and powerful. They wait for a specific condition to be met before continuing. 
+
+<div class = "row">
+<div class = "python">
+
+```{python, eval=FALSE}
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+driver.get("https://www.crous-strasbourg.fr/se-restaurer/ou-manger/")
+
+try:    
+    element = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.ID, "tru_deselect_btn"))
+    )
+    element.click()
+except:
+    print("Element not found after waiting 10 seconds")
+print(element)
+driver.quit()
+```
+
+</div>
+</div>
+
+Common conditions you can wait for (from `expected_conditions`):
+
+Condition | Description
+-|-:
+`presence_of_element_located` | Element is present in the DOM (but may not be visible)
+`visibility_of_element_located` | Element is visible on the page
+`element_to_be_clickable` | Element is visible and enabled, ready to be clicked
+`text_to_be_present_in_element` | Specific text appear in the element
+`title_contains` | Page title contain a specific text
+`url_contains` | Current URL contain a specific text
+`number_of_windows_to_be` | A specific number of windows are open
+
+Example with multiple conditions:
+
+<div class = "row">
+<div class = "python">
+
+```{python, eval=FALSE}
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+driver = webdriver.Chrome()
+driver.get("https://www.example.com")
+
+# Wait for element to be visible (not just present)
+visible_element = WebDriverWait(driver, 10).until(
+    EC.visibility_of_element_located((By.CLASS_NAME, "content"))
+)
+
+# Wait for element to be clickable
+clickable_button = WebDriverWait(driver, 10).until(
+    EC.element_to_be_clickable((By.ID, "submit-button"))
+)
+
+# Wait for specific text to appear in an element
+WebDriverWait(driver, 10).until(
+    EC.text_to_be_present_in_element((By.ID, "status"), "Complete")
+)
+
+driver.quit()
+```
+
+</div>
+</div>
+
+<p>&nbsp;</p>
+
+<div style="border:1px solid; padding:10px; margin-bottom:10px; border-radius: 10px; background-color: #f9f9f9;">
+
+**Exercise 4:** Write a script that open a news website (for example https://www.lemonde.fr or https://www.bbc.com), wait for the articles to load, and print the titles of the first 5 articles.
+
+<details>
+<summary>Click here to see the solution</summary>
+```{python, eval=FALSE}
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+
+# Initialize driver
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+
+driver.get("https://www.lemonde.fr")
+
+accept_button = WebDriverWait(driver, 10).until(
+    EC.element_to_be_clickable((By.CLASS_NAME, "gdpr-lmd-button"))
+)
+accept_button.click()
+
+time.sleep(2)
+
+articles = WebDriverWait(driver, 10).until(
+    EC.presence_of_all_elements_located((By.CSS_SELECTOR, "p.article__title"))
+)
+
+for i, article in enumerate(articles[:5], 1):
+    print(f"{i}. {article.text}")
+
+driver.quit()
+```
+
+</details>  
+
+</div>
+
+<p>&nbsp;</p>
+
+## Extracting Information
+
+Once you have found an element, you can extract different types of information from it.
+
+<div class = "row">
+<div class = "python">
+
+```{python, eval=FALSE}
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+driver.get("https://www.example.com")
+
+# Find an element (for example, a link)
+element = driver.find_element(By.TAG_NAME, "a")
+
+# Get the text content of the element
+text = element.text
+print("Text:", text)
+
+# Get an attribute value (for example, href from a link)
+href = element.get_attribute("href")
+print("Link URL:", href)
+
+# Get the HTML content inside the element
+html = element.get_attribute("innerHTML")
+print("Inner HTML:", html)
+
+# Get the outer HTML (including the element itself)
+outer_html = element.get_attribute("outerHTML")
+print("Outer HTML:", outer_html)
+
+# Check if element is displayed (visible on the page)
+is_visible = element.is_displayed()
+print("Is visible:", is_visible)
+
+# Check if element is enabled (for input fields, buttons, etc.)
+is_enabled = element.is_enabled()
+print("Is enabled:", is_enabled)
+
+# Get element's tag name
+tag = element.tag_name
+print("Tag name:", tag)
+
+driver.quit()
+```
+
+</div>
+</div>
+
+Common attributes you might want to extract:
+
+- `href` - link URL (for `<a>` tags)
+- `src` - image or script source (for `<img>`, `<script>` tags)
+- `class` - CSS class names
+- `id` - element ID
+- `value` - value of input fields
+- `title` - title attribute
+- `alt` - alternative text (for images)
+
+
+<p>&nbsp;</p>
+
+## Interacting with Pages
+
+### Clicking Elements
+
+<div class = "row">
+<div class = "python">
+
+```{python, eval=FALSE}
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+driver = webdriver.Chrome()
+driver.get("https://www.example.com")
+
+button = WebDriverWait(driver, 10).until(
+    EC.element_to_be_clickable((By.ID, "submit-button"))
+)
+button.click()
+
+time.sleep(2)
+
+driver.quit()
+```
+
+</div>
+</div>
+
+Always use `EC.element_to_be_clickable()` instead of just `presence_of_element_located()` when you want to click. An element can be present but not clickable if it's hidden or disabled.
+
+### Filling Forms
+
+<div class = "row">
+<div class = "python">
+
+```{python, eval=FALSE}
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+import time
+
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+driver.get("https://www.google.com")
+
+# Find the search box
+search_box = driver.find_element(By.NAME, "q")
+
+# Type text into it
+search_box.send_keys("web scraping tutorial")
+
+# You can send special keys like RETURN (Enter)
+search_box.send_keys(Keys.RETURN)
+
+time.sleep(3)
+
+driver.quit()
+```
+
+</div>
+</div>
+
+Useful keys from `Keys` class:
+- `Keys.RETURN` or `Keys.ENTER` - Enter key
+- `Keys.TAB` - Tab key
+- `Keys.ESCAPE` - Escape key
+- `Keys.BACK_SPACE` - Backspace
+- `Keys.DELETE` - Delete
+- `Keys.ARROW_DOWN`, `Keys.ARROW_UP` - Arrow keys
+- `Keys.CONTROL`, `Keys.ALT`, `Keys.SHIFT` - Modifier keys
+
+You can also clear an input field before typing:
+```{python, eval=FALSE}
+input_field.clear()  # Remove any existing text
+input_field.send_keys("new text")  # Type new text
+```
+
+### Scrolling
+
+Some websites load content only when you scroll down, you can scroll using JavaScript execution.
+
+<div class = "row">
+<div class = "python">
+
+```{python, eval=FALSE}
+from selenium import webdriver
+import time
+
+driver = webdriver.Chrome()
+driver.get("https://www.example.com")
+
+# Scroll down by 1000 pixels
+driver.execute_script("window.scrollBy(0, 1000);")
+time.sleep(1)
+
+# Scroll to the bottom of the page
+driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+time.sleep(2)
+
+# Scroll to a specific element
+element = driver.find_element(By.ID, "footer")
+driver.execute_script("arguments[0].scrollIntoView();", element)
+time.sleep(1)
+
+driver.quit()
+```
+
+</div>
+</div>
+
+<p>&nbsp;</p>
+
+<div style="border:1px solid; padding:10px; margin-bottom:10px; border-radius: 10px; background-color: #f9f9f9;">
+
+**Exercise 5:** Write a script that go to "https://www.crous-strasbourg.fr/", search for "PEGE", click on the first result, and print the URL and title of the page you arrive on.
+
+<details>
+<summary>Click here to see the solution</summary>
+```{python, eval=FALSE}
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+import time
+
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+
+driver.get("https://www.crous-strasbourg.fr/")
+
+
+element = WebDriverWait(driver, 10).until(
+    EC.element_to_be_clickable((By.ID, "tru_deselect_btn"))
+)
+element.click()
+time.sleep(3)
+
+search_button = WebDriverWait(driver, 15).until(
+    EC.element_to_be_clickable((By.CSS_SELECTOR, "label.button.search"))
+)
+search_button.click()
+
+search_box = WebDriverWait(driver, 15).until(
+    EC.element_to_be_clickable((By.ID, "search_input"))
+)
+search_box.click()
+
+search_box.send_keys("PEGE")
+search_box.submit()
+
+WebDriverWait(driver, 10).until(
+    EC.element_to_be_clickable((By.CSS_SELECTOR, "article.restaurant a"))
+).click()
+
+time.sleep(3)
+print("URL:", driver.current_url)
+print("Title:", driver.title)
+
+driver.quit()
+```
+
+</details>  
+
+</div>
+
+<p>&nbsp;</p>
+
+# Options
+
+## Headless Mode
+
+By default, Selenium open a visible browser window. This is useful for development and debugging because you can see what happen. However, for production scraping or when you run scripts on a server without a display, you may want to run the browser in "headless" mode (without a graphical interface).
+
+<div class = "row">
+<div class = "python">
+
+```{python, eval=FALSE}
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+
+chrome_options = Options()
+
+chrome_options.add_argument("--headless")
+
+chrome_options.add_argument("--no-sandbox")
+chrome_options.add_argument("--disable-dev-shm-usage")
+chrome_options.add_argument("--window-size=1920,1080")
+
+driver = webdriver.Chrome(
+    service=Service(ChromeDriverManager().install()),
+    options=chrome_options
+)
+
+driver.get("https://www.example.com")
+print("Page title:", driver.title)
+
+driver.quit()
+```
+
+</div>
+</div>
+
+## Handling Pop-ups and Alerts
+
+
+<div class = "row">
+<div class = "python">
+
+```{python, eval=FALSE}
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+driver = webdriver.Chrome()
+driver.get("https://www.google.com")
+
+refuse_button = WebDriverWait(driver, 10).until(
+    EC.element_to_be_clickable((By.XPATH, "//button[contains(., 'Tout refuser')]"))
+)
+refuse_button.click()
+
+driver.quit()
+```
+
+</div>
+</div>
+
+
+
+## Error Handling and Best Practices
+
+When scraping websites, many things can go wrong: network errors, elements not found, timeouts, etc. It's important to handle errors gracefully.
+
+
+Error | Cause | Solution
+-|:-|-:
+NoSuchElementException | Element not found | Check selector, use wait, verify element exist
+TimeoutException | Element didn't load in time | Increase wait time, check internet connection
+StaleElementReferenceException | Element changed after finding it | Find element again, use fresh references
+ElementNotInteractableException | Element not clickable | Wait for element to be clickable, scroll to element
+SessionNotCreatedException | ChromeDriver version mismatch | Use webdriver-manager or update ChromeDriver
+
+
+<div class = "row">
+<div class = "python">
+
+```{python, eval=FALSE}
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    TimeoutException,
+    StaleElementReferenceException,
+    WebDriverException
+)
+import time
+
+driver = webdriver.Chrome()
+
+try:
+    driver.get("https://www.example.com")
+    
+    # Try to find an element with proper error handling
+    try:
+        element = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, "my-element"))
+        )
+        data = element.text
+        print("Data:", data)
+        
+    except TimeoutException:
+        print("Error: Element took too long to load")
+        data = None
+        
+    except NoSuchElementException:
+        print("Error: Element not found on the page")
+        data = None
+        
+    except StaleElementReferenceException:
+        print("Error: Element is no longer attached to the DOM")
+        print("(the page may have been updated)")
+        data = None
+        
+except WebDriverException as e:
+    print(f"WebDriver error: {e}")
+    
+except Exception as e:
+    print(f"Unexpected error: {e}")
+    
+finally:
+    driver.quit()
+    print("Browser closed")
+```
+
+</div>
+</div>
+
+
+- **Always add delays** between requests to avoid overloading the server:
+   ```python
+   import time
+   time.sleep(2)  # Wait 2 seconds between requests
+   ```
+
+- **Use try-except blocks** to handle errors gracefully
+
+- **Check robots.txt** before scraping
+
+- **Use explicit waits** instead of `time.sleep()` when possible
+
+- **Close the browser** in a `finally` block to ensure it always close
+
+- **Save data incrementally** so you don't lose everything if the script crash:
+   ```python
+   import json
+   
+   # Save after each item instead of waiting until the end
+   for item in items:
+       data = scrape_item(item)
+       with open('data.json', 'a') as f:
+           json.dump(data, f)
+           f.write('\n')
+   ```
+
+- **Log your progress** to know what was scraped if the script crash:
+   ```python
+   import logging
+   
+   logging.basicConfig(filename='scraper.log', level=logging.INFO)
+   logging.info(f"Scraped {url}")
+   ```
+
+- **Use headless mode** for production but visible mode for development
+
+- **Handle common pop-ups** (cookies, newsletter subscriptions) at the start
+
+
+<p>&nbsp;</p>
+
+
+# Exercise
+
+Redo the exercise from chapter 'Regex' using Selenium. 
+

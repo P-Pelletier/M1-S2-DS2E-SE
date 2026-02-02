@@ -330,7 +330,10 @@ div.tocify {
   <a href="index.html">Home</a>
 </li>
 <li>
-  <a href="4_Regex.html">Regex</a>
+  <a href="1_Regex.html">Regex</a>
+</li>
+<li>
+  <a href="2_Scrapping.html">Scrapping</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -472,6 +475,7 @@ print(uppercase_text)
 <pre class="python"><code># Python 
 import time
 import psutil
+## ModuleNotFoundError: No module named &#39;psutil&#39;
 import os
 
 time_ = time.ctime(time.time())
@@ -482,7 +486,7 @@ wd_info = &#39;\nCurrent working directory: &#39;
 infos = time_info+time_+wd_info+wd
 
 print(infos)
-## Time: Thu Jan 29 13:00:44 2026
+## Time: Mon Feb  2 09:33:08 2026
 ## Current working directory: /Users/peltouz/Documents/GitHub/M1-S2-DS2E-SE</code></pre>
 </div>
 </div>
@@ -580,15 +584,15 @@ Current working directory: {wd}&#39;&#39;&#39;.format(t = time.ctime(time.time()
   
 
 get_infos()
-## Time: Thu Jan 29 13:00:44 2026
+## Time: Mon Feb  2 09:33:08 2026
 ## Current working directory: /Users/peltouz/Documents/GitHub/M1-S2-DS2E-SE
 
 get_infos_2()
-## Time: Thu Jan 29 13:00:44 2026 
+## Time: Mon Feb  2 09:33:08 2026 
 ## Current working directory: /Users/peltouz/Documents/GitHub/M1-S2-DS2E-SE
 
 get_infos_3()
-## Time: Thu Jan 29 13:00:44 2026 
+## Time: Mon Feb  2 09:33:08 2026 
 ## Current working directory: /Users/peltouz/Documents/GitHub/M1-S2-DS2E-SE</code></pre>
 </div>
 </div>
@@ -937,7 +941,7 @@ re.findall(&#39;top-[15]&#39;,abstract)
 
 # you can also create an iterator
 re.finditer(&#39;[0-9]&#39;,abstract)
-## &lt;callable_iterator object at 0x1261ee400&gt;</code></pre>
+## &lt;callable_iterator object at 0x11dc784c0&gt;</code></pre>
 </div>
 </div>
 <p>
@@ -1241,7 +1245,7 @@ re.sub(r&#39;\[(\d+)\]&#39;, r&#39;\1 long&#39;, &#39;[38] min and [4] sec&#39;)
 ## &#39;38 long min and 4 long sec&#39;
 
 re.sub(r&#39;\[(\d+)\]&#39;, r&#39;\10&#39;, &#39;[38] min and [4] sec&#39;)
-## re.error: invalid group reference 10 at position 1
+## re.PatternError: invalid group reference 10 at position 1
 
 re.sub(r&#39;\[(\d+)\]&#39;, r&#39;\g&lt;1&gt;0&#39;, &#39;[38] min and [4] sec&#39;)
 ## &#39;380 min and 40 sec&#39;</code></pre>
@@ -1286,11 +1290,8 @@ def get_page(urlpage):
     return res.text
 
 urlpage = &#39;https://www.crous-strasbourg.fr/restaurant/resto-u-esplanade/&#39;
-page = get_page(urlpage)
-
-menus = re.findall(r&#39;&lt;div class=&quot;menu&quot;&gt;.*?&lt;/ul&gt;\s*&lt;/div&gt;\s*&lt;/div&gt;&#39;, page, re.DOTALL)
-</code></pre>
-<p><a href="resto_u_explication.html">Detailled solution</a></p>
+print(get_page(urlpage))</code></pre>
+<p><a href="resto_u_solution.html">Detailled solution</a></p>
 <!--
 resto_u_explication.html
 Here is an other very simple webscrapping example where we scrap rap-genius to get lyrics from all songs in the album '13 Organisé', for each artist we count the number of unique words after remooving stopwords.
@@ -1348,7 +1349,7 @@ $(document).ready(function ()  {
 
     // establish options
     var options = {
-      selectors: "h1,h2,h3",
+      selectors: "h1,h2",
       theme: "bootstrap3",
       context: '.toc-content',
       hashGenerator: function (text) {

@@ -331,7 +331,10 @@ div.tocify {
   <a href="index.html">Home</a>
 </li>
 <li>
-  <a href="4_Regex.html">Regex</a>
+  <a href="1_Regex.html">Regex</a>
+</li>
+<li>
+  <a href="2_Scrapping.html">Scrapping</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -391,10 +394,8 @@ manipulation for text processing and data extraction.
 <p>
  
 </p></li>
-<li>Chapter ‘Web Scraping &amp; APIs’ covers web scraping techniques
-using BeautifulSoup, requests, and Selenium for both static and dynamic
-content, as well as proper API interaction for automated data
-collection.
+<li>Chapter ‘Web Scraping’ covers web scraping techniques using
+Selenium.
 <p>
  
 </p></li>
@@ -643,7 +644,7 @@ $(document).ready(function ()  {
 
     // establish options
     var options = {
-      selectors: "h1,h2,h3",
+      selectors: "h1,h2",
       theme: "bootstrap3",
       context: '.toc-content',
       hashGenerator: function (text) {
