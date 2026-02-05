@@ -1052,25 +1052,9 @@ finally:
 
 - **Close the browser** in a `finally` block to ensure it always close
 
-- **Save data incrementally** so you don't lose everything if the script crash:
-   ```python
-   import json
-   
-   # Save after each item instead of waiting until the end
-   for item in items:
-       data = scrape_item(item)
-       with open('data.json', 'a') as f:
-           json.dump(data, f)
-           f.write('\n')
-   ```
+- **Save data incrementally** so you don't lose everything if the script crash
 
-- **Log your progress** to know what was scraped if the script crash:
-   ```python
-   import logging
-   
-   logging.basicConfig(filename='scraper.log', level=logging.INFO)
-   logging.info(f"Scraped {url}")
-   ```
+- **Log your progress** to know what was scraped if the script crash
 
 - **Use headless mode** for production but visible mode for development
 

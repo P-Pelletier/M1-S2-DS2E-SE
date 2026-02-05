@@ -1556,14 +1556,9 @@ gracefully</p></li>
 <li><p><strong>Close the browser</strong> in a <code>finally</code>
 block to ensure it always close</p></li>
 <li><p><strong>Save data incrementally</strong> so you don’t lose
-everything if the script crash: ```python import json</p>
-<p># Save after each item instead of waiting until the end for item in
-items: data = scrape_item(item) with open(‘data.json’, ‘a’) as f:
-json.dump(data, f) f.write(‘’) ```</p></li>
+everything if the script crash</p></li>
 <li><p><strong>Log your progress</strong> to know what was scraped if
-the script crash: ```python import logging</p>
-<p>logging.basicConfig(filename=‘scraper.log’, level=logging.INFO)
-logging.info(f”Scraped {url}“) ```</p></li>
+the script crash</p></li>
 <li><p><strong>Use headless mode</strong> for production but visible
 mode for development</p></li>
 <li><p><strong>Handle common pop-ups</strong> (cookies, newsletter
