@@ -590,7 +590,7 @@ driver.quit()
 
 <div style="border:1px solid; padding:10px; margin-bottom:10px; border-radius: 10px; background-color: #f9f9f9;">
 
-**Exercise 4:** Write a script that open a news website (for example https://www.lemonde.fr or https://www.bbc.com), wait for the articles to load, and print the titles of the first 5 articles.
+**Exercise 4:** Write a script that open https://www.lemonde.fr, click on "Accepter et continuer' and then wait for the articles to load, and print the titles of the first 5 articles.
 
 <details>
 <summary>Click here to see the solution</summary>
