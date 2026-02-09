@@ -1068,3 +1068,5 @@ finally:
 
 Redo the exercise from chapter 'Regex' using Selenium. 
 
+
+<a href="selenium_solution.html">Detailled solution</a> 

@@ -1,5 +1,5 @@
 from selenium import webdriver
-from selenium.webdriver.firefox.options import Options  # Firefox Options, not Chrome
+from selenium.webdriver.firefox.options import Options  
 from selenium.webdriver.common.by import By
 
 firefox_options = Options()

@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Selenium - Solution</title>
+
+<script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-6.5.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+.tocify-subheader {
+  display: inline;
+}
+.tocify-subheader .tocify-item {
+  font-size: 0.95em;
+}
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Python</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="1_Regex.html">Regex</a>
+</li>
+<li>
+  <a href="2_Scrapping.html">Scrapping</a>
+</li>
+<li>
+  <a href="3_OOP.html">OOP</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/master-ds2e/">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Selenium - Solution</h1>
+
+</div>
+
+
+<div class="row">
+<div class="python">
+<pre class="python"><code>import requests
+import time 
+import random
+import re
+from selenium.webdriver.common.by import By
+
+user_agent = {&#39;User-Agent&#39;:&#39;Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:147.0) Gecko/20100101 Firefox/147.0&#39;}</code></pre>
+</div>
+</div>
+<style>
+div.python pre { background-color: #e9f7f5; }
+</style>
+<style>
+div.r pre { background-color: #fff5fd; }
+</style>
+<div id="get-all-links" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Get all links</h1>
+<div id="regex" class="section level2" number="1.1">
+<h2><span class="header-section-number">1.1</span> Regex</h2>
+<div class="row">
+<div class="python">
+<pre class="python"><code>def get_all_links_regex():
+    urlpage = &#39;https://www.crous-strasbourg.fr/se-restaurer/ou-manger/&#39;
+    res = requests.get(urlpage, headers = user_agent)
+    links = re.findall(&#39;href=&quot;(.*?)&quot;&gt;&#39;,str(res.text))
+    names_links = dict()
+    for link in links:
+        if &#39;/restaurant/&#39; in link:
+            link = str(link)
+            name = re.findall(&#39;restaurant/(.*)/&#39;,link)[0]
+            name = re.sub(&#39;-&#39;,&#39; &#39;,name)
+            name = re.sub(&#39; 2&#39;,&#39;&#39;,name)
+            name = name.title()
+            names_links.update({name:link})
+    return names_links</code></pre>
+</div>
+</div>
+</div>
+<div id="selenium" class="section level2" number="1.2">
+<h2><span class="header-section-number">1.2</span> Selenium</h2>
+<div class="row">
+<div class="python">
+<pre class="python"><code>def get_all_links_selenium(driver):
+    urlpage = &#39;https://www.crous-strasbourg.fr/se-restaurer/ou-manger/&#39;
+    driver.get(urlpage)
+    elements = driver.find_elements(By.CSS_SELECTOR, &#39;li a&#39;)
+    names_links = dict()
+    for element in elements:
+        link = element.get_attribute(&quot;href&quot;)
+        if &#39;/restaurant/&#39; in link:
+            name = re.findall(&#39;restaurant/(.*)/&#39;,link)[0]
+            name = re.sub(&#39;-&#39;,&#39; &#39;,name)
+            name = re.sub(&#39; 2&#39;,&#39;&#39;,name)
+            name = name.title()
+            names_links.update({name:link})
+    return names_links</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div id="get-page" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Get page</h1>
+<div id="regex-1" class="section level2" number="2.1">
+<h2><span class="header-section-number">2.1</span> Regex</h2>
+<div class="row">
+<div class="python">
+<pre class="python"><code>def get_page_regex(urlpage):
+    time.sleep(2 + random.uniform(0,8))
+    res = requests.get(urlpage, headers = user_agent)
+    return res.text</code></pre>
+</div>
+</div>
+</div>
+<div id="selenium-1" class="section level2" number="2.2">
+<h2><span class="header-section-number">2.2</span> Selenium</h2>
+<div class="row">
+<div class="python">
+<pre class="python"><code>def get_page_selenium(urlpage, driver):
+    time.sleep(2 + random.uniform(0,8))
+    driver.get(urlpage)</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div id="get-date" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> Get date</h1>
+<div id="regex-2" class="section level2" number="3.1">
+<h2><span class="header-section-number">3.1</span> Regex</h2>
+<div class="row">
+<div class="python">
+<pre class="python"><code>def get_date_regex(menu):
+    date = re.findall(&#39;&lt;time class=&quot;menu_date_title&quot;&gt;(.*?)&lt;/time&gt;&#39;,menu)
+    date = re.sub(&#39;Menu du &#39;,&#39;&#39;,date[0])
+    return date</code></pre>
+</div>
+</div>
+</div>
+<div id="selenium-2" class="section level2" number="3.2">
+<h2><span class="header-section-number">3.2</span> Selenium</h2>
+<div class="row">
+<div class="python">
+<pre class="python"><code>def get_date_selenium(menu):
+    date_elem = menu.find_element(By.CLASS_NAME,&#39;menu_date_title&#39;)
+    date = date_elem.text
+    date = re.sub(&#39;Menu du &#39;,&#39;&#39;,date)
+    return date</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div id="get-meal-type-and-poles" class="section level1" number="4">
+<h1><span class="header-section-number">4</span> Get meal type and
+poles</h1>
+<div id="regex-3" class="section level2" number="4.1">
+<h2><span class="header-section-number">4.1</span> Regex</h2>
+<div class="row">
+<div class="python">
+<pre class="python"><code>def get_meal_type_and_poles_regex(meal):
+    meal_type = re.findall(&#39;&lt;div class=&quot;meal_title&quot;&gt;(.*)&lt;/div&gt;&#39;,meal)[0]
+    meal_by_poles = re.findall(&quot;&lt;li&gt;(.*?)&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&quot;,meal)
+    return meal_type, meal_by_poles</code></pre>
+</div>
+</div>
+</div>
+<div id="selenium-3" class="section level2" number="4.2">
+<h2><span class="header-section-number">4.2</span> Selenium</h2>
+<div class="row">
+<div class="python">
+<pre class="python"><code>def get_meal_type_and_poles_selenium(meal):
+    meal_type = meal.find_element(By.CLASS_NAME,&quot;meal_title&quot;)
+    meal_by_poles = meal.find_elements(By.CSS_SELECTOR, &#39;ul.meal_foodies &gt; li&#39;)
+    return meal_type.text, meal_by_poles</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div id="get-meal-infos" class="section level1" number="5">
+<h1><span class="header-section-number">5</span> Get meal infos</h1>
+<div id="regex-4" class="section level2" number="5.1">
+<h2><span class="header-section-number">5.1</span> Regex</h2>
+<div class="row">
+<div class="python">
+<pre class="python"><code>def get_meal_infos_regex(meal_by_pole):
+    pole, meal_infos = meal_by_pole.split(&quot;&lt;ul&gt;&lt;li&gt;&quot;)
+    meal_infos = meal_infos.split(&#39;&lt;/li&gt;&lt;li&gt;&#39;)
+    meal_infos = [re.sub(&#39;&lt;/li&gt;&lt;/ul&gt;&#39;,&#39;&#39;,meal) for meal in meal_infos if meal != &#39;-&#39;]
+    return pole, meal_infos</code></pre>
+</div>
+</div>
+</div>
+<div id="selenium-4" class="section level2" number="5.2">
+<h2><span class="header-section-number">5.2</span> Selenium</h2>
+<div class="row">
+<div class="python">
+<pre class="python"><code>def get_meal_infos_selenium(meal_by_pole):
+    meal_by_pole_html = meal_by_pole.get_attribute(&#39;innerHTML&#39;)
+    pole, meal_infos = meal_by_pole_html.split(&quot;&lt;ul&gt;&lt;li&gt;&quot;)
+    meal_infos = meal_infos.split(&#39;&lt;/li&gt;&lt;li&gt;&#39;)
+    meal_infos = [re.sub(&#39;&lt;/li&gt;&lt;/ul&gt;&#39;,&#39;&#39;,meal) for meal in meal_infos if meal != &#39;-&#39;]
+    return pole, meal_infos</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div id="get-all-meals-from-resto-u" class="section level1" number="6">
+<h1><span class="header-section-number">6</span> Get all meals from
+resto U</h1>
+<div id="regex-5" class="section level2" number="6.1">
+<h2><span class="header-section-number">6.1</span> Regex</h2>
+<div class="row">
+<div class="python">
+<pre class="python"><code>def get_all_meals_from_resto_u_regex(name, urlpage):
+    page = get_page_regex(urlpage)
+    menus = re.findall(r&#39;&lt;div class=&quot;menu&quot;&gt;.*?&lt;/ul&gt;\s*&lt;/div&gt;\s*&lt;/div&gt;&#39;, page, re.DOTALL)
+    
+    resto_u_all_infos = dict()
+    for menu in menus:
+        date = get_date_regex(menu)
+        meals = re.findall(r&#39;&lt;div class=&quot;meal&quot;&gt;(.*?)&lt;/ul&gt;\s*&lt;/div&gt;&#39;,menu, re.DOTALL)
+        
+        resto_u_all_infos.update({date:{name:dict()}})
+        for meal in meals:
+            meal_type, meal_by_poles = get_meal_type_and_poles_regex(meal)
+            
+            resto_u_all_infos[date][name].update({meal_type:dict()})
+            for meal_by_pole in meal_by_poles:
+                pole, meal_infos = get_meal_infos_regex(meal_by_pole)
+                resto_u_all_infos[date][name][meal_type].update({pole:meal_infos})
+    return resto_u_all_infos</code></pre>
+</div>
+</div>
+</div>
+<div id="selenium-5" class="section level2" number="6.2">
+<h2><span class="header-section-number">6.2</span> Selenium</h2>
+<div class="row">
+<div class="python">
+<pre class="python"><code>def get_all_meals_from_resto_u_selenium(name, urlpage, driver):
+    get_page_selenium(urlpage, driver)
+    menus = driver.find_elements(By.CLASS_NAME,&#39;menu&#39;)
+    
+    resto_u_all_infos = dict()
+    for menu in menus:
+        date = get_date_selenium(menu)
+        meals = driver.find_elements(By.CLASS_NAME,&#39;meal&#39;)
+        
+        resto_u_all_infos.update({date:{name:dict()}})
+        for meal in meals:
+            meal_type, meal_by_poles = get_meal_type_and_poles_selenium(meal)
+            
+            resto_u_all_infos[date][name].update({meal_type:dict()})
+            for meal_by_pole in meal_by_poles:
+                pole, meal_infos = get_meal_infos_selenium(meal_by_pole)
+                resto_u_all_infos[date][name][meal_type].update({pole:meal_infos})
+    return resto_u_all_infos</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div id="get-all-infos" class="section level1" number="7">
+<h1><span class="header-section-number">7</span> Get all infos</h1>
+<div id="regex-6" class="section level2" number="7.1">
+<h2><span class="header-section-number">7.1</span> Regex</h2>
+<div class="row">
+<div class="python">
+<pre class="python"><code>def get_all_infos():
+    links = get_all_links_regex()
+    all_resto_u_all_infos = dict()
+    for name, link in links.items():
+        resto_u_all_infos = get_all_meals_from_resto_u_regex(name, link)
+        if resto_u_all_infos:
+            for date in resto_u_all_infos.keys():
+                if date in all_resto_u_all_infos:
+                    all_resto_u_all_infos[date].update(resto_u_all_infos[date])
+                else:
+                    all_resto_u_all_infos.update({date:resto_u_all_infos[date]})
+    return all_resto_u_all_infos</code></pre>
+</div>
+</div>
+</div>
+<div id="selenium-6" class="section level2" number="7.2">
+<h2><span class="header-section-number">7.2</span> Selenium</h2>
+<div class="row">
+<div class="python">
+<pre class="python"><code>def get_driver():
+    chrome_options = Options()
+    chrome_options.add_argument(f&quot;user-agent={user_agent}&quot;)
+    driver = webdriver.Chrome(
+        service=Service(ChromeDriverManager().install()),
+        options=chrome_options
+    )
+    return driver
+
+def get_all_infos():
+    driver = get_driver()
+    links = get_all_links_selenium(driver)
+    all_resto_u_all_infos = dict()
+    for name, link in links.items():
+        resto_u_all_infos = get_all_meals_from_resto_u_selenium(name, link, driver)
+        if resto_u_all_infos:
+            for date in resto_u_all_infos.keys():
+                if date in all_resto_u_all_infos:
+                    all_resto_u_all_infos[date].update(resto_u_all_infos[date])
+                else:
+                    all_resto_u_all_infos.update({date:resto_u_all_infos[date]})
+    driver.quit()
+    return all_resto_u_all_infos</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div id="create-the-ui" class="section level1" number="8">
+<h1><span class="header-section-number">8</span> Create the UI</h1>
+<div class="row">
+<div class="python">
+<pre class="python"><code>def show_item(list_):
+    i = 1
+    for item in list_:
+        print(&#39;%s : %s&#39;%(str(i),item))
+        i+=1</code></pre>
+</div>
+</div>
+<div class="row">
+<div class="python">
+<pre class="python"><code>def main():
+    all_resto_u_all_infos = get_all_infos()
+    quit = &#39;N&#39;
+    change_rest = &#39;Y&#39;
+    while quit==&#39;N&#39;:
+        dates = list(all_resto_u_all_infos.keys())
+        show_item(dates)
+        date_choosed = int(input(&#39;Select the date (type the number aside)&#39;))
+        restaurants = list(all_resto_u_all_infos[dates[date_choosed-1]].keys())
+        while change_rest == &#39;Y&#39;:
+            print(&#39;---------------------------------------\n\n&#39;)
+            show_item(restaurants)
+            rest_choosed = int(input(&#39;Select the restaurant (type the number aside)&#39;))
+            meal_keys = list(all_resto_u_all_infos[dates[date_choosed-1]][restaurants[rest_choosed-1]].keys())
+            show_item(meal_keys)
+            meal_choosed = int(input(&#39;Select the meal (type the number aside)&#39;))
+            
+            menu = all_resto_u_all_infos[dates[date_choosed-1]][restaurants[rest_choosed-1]][meal_keys[meal_choosed-1]]
+            for meal in menu:
+                print(&#39;&#39;&#39;%s :
+                %s
+                  &#39;&#39;&#39;%(meal,menu[meal]))
+            change_rest = input(&#39;Do you want to select another restaurant ? (Y/N)&#39;)
+        
+        quit = input(&#39;Do you want to quit ? (Y/N)&#39;)
+        if quit == &#39;N&#39;:
+            change_rest = &#39;Y&#39;
+
+main()</code></pre>
+</div>
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = false;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

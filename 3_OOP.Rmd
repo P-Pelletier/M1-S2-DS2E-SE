@@ -1,0 +1,1169 @@
+---
+title: "Object Oriented Programming"
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,error=TRUE,collapse = T, eval = F)
+library(reticulate)
+
+py_require('pandas')
+py_require('numpy')
+py_require('psutil')
+py_require('selenium')
+```
+
+<style>
+div.python pre { background-color: #e9f7f5; }
+div.version1 pre { background-color: #fff5e6; }
+div.version2 pre { background-color: #e6f7ff; }
+</style>
+
+# Classes
+
+## Why classes?
+
+In the previous chapters, we wrote functions to scrape university restaurant menus. Each function does one thing: get a page, extract a date, parse meals, etc. This works fine, but as our code grows, we face some issues:
+
+  - We pass the same arguments (like `driver`) to many functions.
+  - Our data is stored in deeply nested dictionaries that are hard to read and maintain.
+  - If someone new reads the code, they have to understand all the functions and how they connect.
+
+A **class** groups related data and functions together into a single object.
+
+## Scope and Namespaces
+
+It's important to understand how Python finds variables. Python uses the **LEGB** rule:
+
+  1. **L**ocal: inside the current function
+  2. **E**nclosing: inside any parent function (for nested functions)
+  3. **G**lobal: at the module/file level
+  4. **B**uilt-in: Python's built-in names (`print`, `len`, etc.)
+
+<div class = "row">
+<div class = "python">
+
+```{python, collapse = T, eval = T}
+x = "global"
+
+def my_function():
+    x = "local"
+    print(x)  # prints "local" (found in Local first)
+
+my_function()
+print(x)  # prints "global"
+```
+
+</div>
+</div>
+
+A more complete example showing `nonlocal` and `global`:
+
+<div class = "row">
+<div class = "python">
+
+```{python, collapse = T, eval = T}
+def scope_test():
+    def do_local():
+        spam = "local spam"
+
+    def do_nonlocal():
+        nonlocal spam
+        spam = "nonlocal spam"
+
+    def do_global():
+        global spam
+        spam = "global spam"
+
+    spam = "test spam"
+    do_local()
+    print("After local assignment:", spam)
+    do_nonlocal()
+    print("After nonlocal assignment:", spam)
+    do_global()
+    print("After global assignment:", spam)
+
+scope_test()
+print("In global scope:", spam)
+```
+
+</div>
+</div>
+
+## Defining a class
+
+The simplest form of a class definition:
+
+```
+class ClassName:
+    <statement-1>
+    ...
+    <statement-N>
+```
+
+A class supports two kinds of operations: **attribute references** (accessing names with a dot: `obj.name`) and **instantiation** (creating a new object from the class).
+
+Let's start with a simple example related to our scraper. Imagine we want to represent a restaurant:
+
+<div class = "row">
+<div class = "python">
+
+```{python, collapse = T, eval = T}
+class Restaurant:
+    """A simple class to represent a restaurant"""
+    base_url = 'https://www.crous-strasbourg.fr'
+
+    def full_url(self):
+        return self.base_url + '/se-restaurer/'
+
+# Attribute references
+Restaurant.base_url
+
+# Instantiation
+r = Restaurant()
+
+r.full_url()
+r.base_url
+```
+
+</div>
+</div>
+
+`self` is the instance itself. When you call `r.full_url()`, Python automatically passes `r` as the first argument. So `r.full_url()` is equivalent to `Restaurant.full_url(r)`.
+
+
+## The `__init__` method
+
+Most classes need to set up an initial state when they are created. This is done with the special method `__init__()`, which is called automatically when you create a new instance.
+
+<div class = "row">
+<div class = "python">
+
+```{python, collapse = T, eval = T}
+class Restaurant:
+    def __init__(self, name, url):
+        self.name = name
+        self.url = url
+
+r = Restaurant('Resto U Esplanade', 'https://www.crous-strasbourg.fr/restaurant/resto-u-esplanade/')
+r.name
+r.url
+```
+
+</div>
+</div>
+
+
+## Class variables vs instance variables
+
+**Class variables** are shared by all instances. **Instance variables** are unique to each instance.
+
+<div class = "row">
+<div class = "python">
+
+```{python, collapse = T, eval = T}
+class Restaurant:
+    source = 'CROUS Strasbourg'   # class variable shared by all instances
+
+    def __init__(self, name, url):
+        self.name = name          # instance variable unique to each instance
+        self.url = url
+
+r1 = Restaurant('Esplanade', '/restaurant/resto-u-esplanade/')
+r2 = Restaurant('Paul Appell', '/restaurant/resto-u-paul-appell/')
+
+r1.source   
+r2.source   
+
+r1.name   
+r2.name     
+```
+
+</div>
+</div>
+
+**Careful with mutable class variables!** A list defined as a class variable is shared by all instances, which can lead to unexpected behavior:
+
+<div class = "row">
+<div class = "python">
+
+```{python, collapse = T, eval = T}
+# WRONG
+class Restaurant:
+    menus = [] # shared by ALL restaurants!
+
+    def __init__(self, name):
+        self.name = name
+
+    def add_menu(self, menu):
+        self.menus.append(menu)
+
+r1 = Restaurant('Esplanade')
+r2 = Restaurant('Paul Appell')
+
+r1.add_menu('Lundi: Lasagne')
+r2.add_menu('Lundi: Poulet')
+
+r1.menus   
+```
+
+```{python, collapse = T, eval = T}
+# CORRECT
+class Restaurant:
+    def __init__(self, name):
+        self.name = name
+        self.menus = [] # new list for each restaurant
+
+    def add_menu(self, menu):
+        self.menus.append(menu)
+
+r1 = Restaurant('Esplanade')
+r2 = Restaurant('Paul Appell')
+
+r1.add_menu('Lundi: Lasagne')
+r2.add_menu('Lundi: Poulet')
+
+r1.menus    
+r2.menus    
+```
+
+</div>
+</div>
+
+This distinction will matter when we build our scraper class. For instance, `USER_AGENT` and `BASE_URL` are the same for every scraper instance — they should be class variables. But `driver` (the browser window) must be unique to each instance — it must be an instance variable. If `driver` were a class variable, all scraper instances would share the same browser window. If one calls `close()`, the other would break.
+
+## Methods calling other methods
+
+Inside a class, methods can call other methods using `self`:
+
+<div class = "row">
+<div class = "python">
+
+```{python, collapse = T, eval = T}
+class Restaurant:
+    def __init__(self, name):
+        self.name = name
+        self.menus = []
+
+    def add_menu(self, menu):
+        self.menus.append(menu)
+
+    def add_week_menus(self, weekly_menus):
+        for menu in weekly_menus:
+            self.add_menu(menu)
+
+r = Restaurant('Esplanade')
+r.add_week_menus(['Lundi: Lasagne', 'Mardi: Poulet', 'Mercredi: Poisson'])
+r.menus  
+```
+
+</div>
+</div>
+<p>&nbsp;</p>
+
+<div style="border:1px solid; padding:10px; margin-bottom:10px; border-radius: 10px; background-color: #f9f9f9;">
+
+**Exercise:** Create a class `Counter` with an `__init__` that starts a count at 0, a method `increment()` that adds 1, and a method `get_count()` that returns the current count.
+
+<details>
+<summary>Click here to see the solution</summary>
+```{python, echo = T, collapse = TRUE, eval = T}
+class Counter:
+    def __init__(self):
+        self.count = 0
+    
+    def increment(self):
+        self.count += 1
+    
+    def get_count(self):
+        return self.count
+
+c = Counter()
+c.increment()
+c.increment()
+c.increment()
+print(c.get_count()) 
+```
+</details>  
+
+
+</div>
+
+<p>&nbsp;</p>
+
+# From Functions to a Class
+
+## Our functional code
+
+In the Selenium chapter, we wrote these functions to scrape restaurant menus:
+
+<div class = "row">
+<div class = "python">
+
+```{python, eval = T}
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+import time
+import random
+import re
+
+user_agent = {'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:147.0) Gecko/20100101 Firefox/147.0'}
+
+def get_driver():
+    firefox_options = Options()
+    firefox_options.set_preference("general.useragent.override", self.USER_AGENT)
+    firefox_options.add_argument("--headless")
+    driver = webdriver.Firefox(options=firefox_options)
+    return driver
+
+def get_all_links(driver):
+    urlpage = 'https://www.crous-strasbourg.fr/se-restaurer/ou-manger/'
+    driver.get(urlpage)
+    elements = driver.find_elements(By.CSS_SELECTOR, 'li a')
+    names_links = dict()
+    for element in elements:
+        link = element.get_attribute("href")
+        if '/restaurant/' in link:
+            name = re.findall('restaurant/(.*)/',link)[0]
+            name = re.sub('-',' ',name)
+            name = re.sub(' 2','',name)
+            name = name.title()
+            names_links.update({name:link})
+    return names_links
+
+def get_page(urlpage, driver):
+    time.sleep(2 + random.uniform(0,8))
+    driver.get(urlpage)
+
+def get_date(menu):
+    date_elem = menu.find_element(By.CLASS_NAME,'menu_date_title')
+    date = date_elem.text
+    date = re.sub('Menu du ','',date)
+    return date
+
+def get_meal_type_and_poles(meal):
+    meal_type = meal.find_element(By.CLASS_NAME,"meal_title")
+    meal_by_poles = meal.find_elements(By.CSS_SELECTOR, 'ul.meal_foodies > li')
+    return meal_type.text, meal_by_poles
+
+def get_meal_infos(meal_by_pole):
+    meal_by_pole_html = meal_by_pole.get_attribute('innerHTML')
+    pole, meal_infos = meal_by_pole_html.split("<ul><li>")
+    meal_infos = meal_infos.split('</li><li>')
+    meal_infos = [re.sub('</li></ul>','',meal) for meal in meal_infos if meal != '-']
+    return pole, meal_infos
+
+def get_all_meals_from_resto_u(name, urlpage, driver):
+    get_page(urlpage, driver)
+    menus = driver.find_elements(By.CLASS_NAME,'menu')
+    resto_u_all_infos = dict()
+    for menu in menus:
+        date = get_date(menu)
+        meals = driver.find_elements(By.CLASS_NAME,'meal')
+        resto_u_all_infos.update({date:{name:dict()}})
+        for meal in meals:
+            meal_type, meal_by_poles = get_meal_type_and_poles(meal)
+            resto_u_all_infos[date][name].update({meal_type:dict()})
+            for meal_by_pole in meal_by_poles:
+                pole, meal_infos = get_meal_infos(meal_by_pole)
+                resto_u_all_infos[date][name][meal_type].update({pole:meal_infos})
+    return resto_u_all_infos
+
+def get_all_infos():
+    driver = get_driver()
+    links = get_all_links(driver)
+    all_resto_u_all_infos = dict()
+    for name, link in links.items():
+        resto_u_all_infos = get_all_meals_from_resto_u(name, link, driver)
+        if resto_u_all_infos:
+            for date in resto_u_all_infos.keys():
+                if date in all_resto_u_all_infos:
+                    all_resto_u_all_infos[date].update(resto_u_all_infos[date])
+                else:
+                    all_resto_u_all_infos.update({date:resto_u_all_infos[date]})
+    driver.quit()
+    return all_resto_u_all_infos
+```
+
+</div>
+</div>
+
+
+We pass `driver` to almost every function. It's a shared resource that all functions need.
+The `user_agent` and `BASE_URL` are global variables floating around.
+If we want to add new features (e.g., search for a dish), we write yet another standalone function that needs the whole nested dictionary passed to it.
+
+## Wrapping functions into a class
+
+We take all the functions and the shared state (`driver`, `user_agent`, `BASE_URL`) and put them together inside a class. The `driver` that was passed around becomes `self.driver`.
+
+<div class = "row">
+<div class = "version1">
+
+```{python, eval = T}
+from selenium import webdriver
+from selenium.webdriver.firefox.options import Options  
+from selenium.webdriver.common.by import By
+import time
+import random
+import re
+
+class CrousScraper:
+    
+    USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:147.0) Gecko/20100101 Firefox/147.0'
+    BASE_URL = 'https://www.crous-strasbourg.fr/se-restaurer/ou-manger/'
+    
+    def __init__(self):
+        self.driver = None
+        self.get_driver()
+    
+    def get_driver(self):
+        firefox_options = Options()
+        firefox_options.set_preference("general.useragent.override", self.USER_AGENT)
+        firefox_options.add_argument("--headless")
+        self.driver = webdriver.Firefox(options=firefox_options)
+    
+    def close(self):
+        if self.driver:
+            self.driver.quit()
+            self.driver = None
+    
+    def get_all_links(self):
+        self.driver.get(self.BASE_URL)
+        elements = self.driver.find_elements(By.CSS_SELECTOR, 'li a')
+        
+        names_links = dict()
+        for element in elements:
+            link = element.get_attribute("href")
+            if link and '/restaurant/' in link:
+                name = re.findall('restaurant/(.*)/', link)[0]
+                name = re.sub('-', ' ', name)
+                name = re.sub(' 2', '', name)
+                name = name.title()
+                names_links.update({name: link})
+        return names_links
+    
+    def get_page(self, urlpage):
+        time.sleep(2 + random.uniform(0, 8))
+        self.driver.get(urlpage)
+    
+    def get_date(self, menu):
+        date_elem = menu.find_element(By.CLASS_NAME, 'menu_date_title')
+        date = date_elem.text
+        return re.sub('Menu du ', '', date)
+    
+    def get_meal_type_and_poles(self, meal):
+        meal_type = meal.find_element(By.CLASS_NAME, "meal_title")
+        meal_by_poles = meal.find_elements(By.CSS_SELECTOR, 'ul.meal_foodies > li')
+        return meal_type.text, meal_by_poles
+    
+    def get_meal_infos(self, meal_by_pole):
+        meal_by_pole_html = meal_by_pole.get_attribute('innerHTML')
+        pole, meal_infos = meal_by_pole_html.split("<ul><li>")
+        meal_infos = meal_infos.split('</li><li>')
+        meal_infos = [re.sub('</li></ul>','',meal) for meal in meal_infos if meal != '-']
+        return pole, meal_infos
+    
+    def get_all_meals_from_resto_u(self, name, urlpage):
+        self.get_page(urlpage)
+        menus = self.driver.find_elements(By.CLASS_NAME, 'menu')
+        
+        resto_u_all_infos = dict()
+        for menu in menus:
+            date = self.get_date(menu)
+            meals = menu.find_elements(By.CLASS_NAME, 'meal')
+            resto_u_all_infos.update({date: {name: dict()}})
+            for meal in meals:
+                meal_type, meal_by_poles = self.get_meal_type_and_poles(meal)
+                resto_u_all_infos[date][name].update({meal_type: dict()})
+                for meal_by_pole in meal_by_poles:
+                    pole, meal_infos = self.get_meal_infos(meal_by_pole)
+                    resto_u_all_infos[date][name][meal_type].update({pole: meal_infos})
+        return resto_u_all_infos
+    
+    def get_all_infos(self):
+        links = self.get_all_links()
+        all_resto_u_all_infos = dict()
+        for name, link in links.items():
+            resto_u_all_infos = self.get_all_meals_from_resto_u(name, link)
+            if resto_u_all_infos:
+                for date in resto_u_all_infos.keys():
+                    if date in all_resto_u_all_infos:
+                        all_resto_u_all_infos[date].update(resto_u_all_infos[date])
+                    else:
+                        all_resto_u_all_infos.update({date: resto_u_all_infos[date]})
+        return all_resto_u_all_infos
+```
+
+</div>
+</div>
+
+Let's test the class with a single restaurant:
+
+<div class = "row">
+<div class = "version1">
+
+```{python, eval = T}
+scraper = CrousScraper()
+
+# Scrape Resto U Esplanade
+esplanade = scraper.get_all_meals_from_resto_u('Resto U Esplanade', 'https://www.crous-strasbourg.fr/restaurant/resto-u-esplanade-2/')
+print(esplanade)
+
+scraper.close()
+```
+
+</div>
+</div>
+
+- `driver` is no longer passed as an argument, it lives in `self.driver`.
+
+- `USER_AGENT` and `BASE_URL` are **class variables**: shared by all instances, defined once.
+
+- `__init__` creates the driver automatically when we instantiate the class.
+
+- Every function became a **method** (first argument is `self`).
+
+<p>&nbsp;</p>
+
+
+# Going further
+
+## Improving the design
+
+V1 is a direct translation from functions to a class. It works, but we can do better. Here are the improvements we'll make:
+
+  - **Use private methods**: prefix internal helpers with `_` to separate what's public from what's internal.
+  - **Use data classes**: instead of nested dictionaries, create proper objects to hold our data.
+
+Python does not have truly private variables. However, the convention is to prefix internal names with an underscore `_`. 
+
+```python
+class CrousScraper:
+    def get_all_infos(self): # public: meant to be called by the user
+        pass
+    
+    def _get_date(self, menu): # private: internal helper
+        pass
+```
+
+## Dataclasses
+
+A `dataclass` is a shortcut for creating classes that mainly store data. Instead of writing `__init__`, `__repr__`, and `__eq__` yourself, the `@dataclass` decorator generates them automatically.
+
+<div class = "row">
+<div class = "python">
+
+```{python, collapse = T, eval = T}
+from dataclasses import dataclass
+
+# Without dataclass
+class Restaurant:
+    def __init__(self, name, url):
+        self.name = name
+        self.url = url
+    
+    def __repr__(self):
+        return f"Restaurant(name={self.name}, url={self.url})"
+
+# With dataclass
+@dataclass
+class Restaurant:
+    name: str
+    url: str
+```
+
+```{python, collapse = T, eval = T}
+r = Restaurant('Resto U Esplanade', 'https://www.crous-strasbourg.fr/restaurant/resto-u-esplanade/')
+r.name
+r.url
+print(r)
+```
+
+</div>
+</div>
+
+For our scraper, we can define data classes to hold the structured menu data:
+
+<div class = "row">
+<div class = "version2">
+
+```{python, eval = T}
+from dataclasses import dataclass, field
+
+@dataclass
+class Restaurant:
+    name: str
+    url: str
+
+@dataclass
+class Menu:
+    date: str
+    meals: dict = field(default_factory=dict)
+    # Structure : {meal_type: {pole: [meal]}}
+    
+    def add_meal(self, meal_type, pole, meal):
+        if meal_type not in self.meals:
+            self.meals[meal_type] = {}
+        self.meals[meal_type][pole] = meal
+
+@dataclass
+class MenuCollection:
+    data: dict = field(default_factory=dict)
+    # Structure : {date: {restaurant_name: Menu}}
+    
+    def add_menu(self, date, restaurant_name, menu):
+        if date not in self.data:
+            self.data[date] = {}
+        self.data[date][restaurant_name] = menu
+    
+    def get_dates(self):
+        return list(self.data.keys())
+    
+    def get_restaurants(self, date):
+        return list(self.data[date].keys())
+```
+
+</div>
+</div>
+
+The use of `field(default_factory=dict)` avoids the mutable class variable trap we saw earlier with the `Restaurant.menus` example. Each instance gets its own fresh dictionary.
+
+Let's see how these data classes work together:
+
+<div class = "row">
+<div class = "python">
+
+```{python, collapse = T, eval = T}
+# Create a menu and add meals to it
+m = Menu(date="Lundi 9 février")
+m.add_meal("Déjeuner", "Menus étudiants 1er et 2ème étage", ["Salade verte", "Soupe de légumes"])
+m.add_meal("Déjeuner", "Cristal Shop (RDC) Cafétéria", ["Lasagne", "Poulet rôti"])
+print(m)
+
+# Create a collection and add the menu
+collection = MenuCollection()
+collection.add_menu("Lundi 9 février", "Esplanade", m)
+collection.get_dates()
+collection.get_restaurants("Lundi 9 février")
+```
+
+</div>
+</div>
+
+<p>&nbsp;</p>
+
+<div style="border:1px solid; padding:10px; margin-bottom:10px; border-radius: 10px; background-color: #f9f9f9;">
+
+**Exercise 1:** Using `@dataclass`, create a class `Student` with attributes `name` (str), `program` (str), and `grade` (float). Create a list of 2 students and convert them into a pandas DataFrame.
+
+<details>
+<summary>Click here to see the solution</summary>
+```{python, echo = T, collapse = TRUE, eval = T}
+from dataclasses import dataclass, asdict
+import pandas as pd
+
+@dataclass
+class Student:
+    name: str
+    program: str
+    grade: float
+
+students = [
+    Student('Alice', 'DS2E', 15.5),
+    Student('Bob', 'MPE', 12.3)
+]
+
+df = pd.DataFrame([asdict(s) for s in students])
+print(df)
+```
+</details>
+
+</div>
+
+<p>&nbsp;</p>
+
+## Scraper (V2)
+
+<div class = "row">
+<div class = "version2">
+
+```{python, eval = T}
+from selenium import webdriver
+from selenium.webdriver.firefox.options import Options  
+from selenium.webdriver.common.by import By
+import time
+import random
+import re
+
+class CrousScraper:
+    
+    USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:147.0) Gecko/20100101 Firefox/147.0'
+    BASE_URL = 'https://www.crous-strasbourg.fr/se-restaurer/ou-manger/'
+    
+    def __init__(self):
+        self.driver = None
+        self._init_driver()
+    
+    def _init_driver(self):
+        firefox_options = Options()
+        firefox_options.set_preference("general.useragent.override", self.USER_AGENT)
+        firefox_options.add_argument("--headless")
+        self.driver = webdriver.Firefox(options=firefox_options)
+    
+    
+    def close(self):
+        if self.driver:
+            self.driver.quit()
+            self.driver = None
+    
+    def get_all_restaurants_links(self):
+        self.driver.get(self.BASE_URL)
+        elements = self.driver.find_elements(By.CSS_SELECTOR, 'li a')
+        
+        restaurants = []
+        for element in elements:
+            link = element.get_attribute("href")
+            if link and '/restaurant/' in link:
+                name = self._get_restaurant_name(link)
+                restaurants.append(Restaurant(name, link))
+        return restaurants
+    
+    def _get_restaurant_name(self, link):
+        name = re.findall('restaurant/(.*)/', link)[0]
+        name = re.sub('-', ' ', name)
+        name = re.sub(' 2', '', name)
+        return name.title()
+    
+    def _get_page(self, url):
+        time.sleep(2 + random.uniform(0, 8))
+        self.driver.get(url)
+    
+    def get_all_meals_from_resto_u(self, restaurant):
+        self._get_page(restaurant.url)
+        menu_elements = self.driver.find_elements(By.CLASS_NAME, 'menu')
+        
+        menu_collection = MenuCollection()
+        for menu_elem in menu_elements:
+            date = self._get_date(menu_elem)
+            menu = Menu(date)
+            
+            meal_elements = menu_elem.find_elements(By.CLASS_NAME, 'meal')
+            for meal_elem in meal_elements:
+                meal_type, pole_elements = self._get_meal_type_and_poles(meal_elem)
+                for pole_elem in pole_elements:
+                    pole, meal = self._get_meal_infos(pole_elem)
+                    menu.add_meal(meal_type, pole, meal)
+            
+            menu_collection.add_menu(date, restaurant.name, menu)
+        return menu_collection
+    
+    def _get_date(self, menu_elem):
+        date_elem = menu_elem.find_element(By.CLASS_NAME, 'menu_date_title')
+        return re.sub('Menu du ', '', date_elem.text)
+    
+    def _get_meal_type_and_poles(self, meal_elem):
+        meal_type = meal_elem.find_element(By.CLASS_NAME, "meal_title").text
+        pole_elements = meal_elem.find_elements(By.CSS_SELECTOR, 'ul.meal_foodies > li')
+        return meal_type, pole_elements
+    
+    def _get_meal_infos(self, pole_elem):
+        pole_html = pole_elem.get_attribute('innerHTML')
+        pole, meal_infos = pole_html.split("<ul><li>")
+        meal_infos = meal_infos.split('</li><li>')
+        meal_infos = [re.sub('</li></ul>','',meal) for meal in meal_infos if meal != '-']
+        return pole, meal_infos
+    
+    def get_all_infos(self):
+        restaurants = self.get_all_links()
+        all_menus = MenuCollection()
+        for restaurant in restaurants:
+            resto_menus = self.get_all_meals_from_resto_u(restaurant)
+            for date in resto_menus.data.keys():
+                for resto_name, menu in resto_menus.data[date].items():
+                    all_menus.add_menu(date, resto_name, menu)
+        return all_menus
+```
+
+</div>
+</div>
+
+Let's test the class with Resto U Esplanade:
+
+<div class = "row">
+<div class = "version2">
+
+```{python, eval = T}
+scraper = CrousScraper()
+
+# Scrape Resto U Esplanade
+esplanade = Restaurant('Resto U Esplanade', 'https://www.crous-strasbourg.fr/restaurant/resto-u-esplanade-2/')
+collection = scraper.get_all_meals_from_resto_u(esplanade)
+print(collection)
+
+scraper.close()
+```
+
+</div>
+</div>
+
+## Comparing the two versions
+
+### Method names
+
+V1 (from functions) | V2 (improved)
+-|-:
+get_all_links() | get_all_links()
+get_page() | _get_page()
+get_date() | _get_date()
+get_meal_type_and_poles() | _get_meal_type_and_poles()
+get_all_meals_from_resto_u() | get_all_meals_from_resto_u()
+get_all_infos() | get_all_infos()
+
+Internal helpers start with `_` to show they are private.
+
+### Data structures
+
+V1 returns nested dictionaries:
+
+```python
+{
+    "Lundi 9 février": {
+        "Restaurant Paul Appell": {
+            "Déjeuner": {
+                "Entrées": ["Salade", "Soupe"],
+                "Plats": ["Lasagne", "Poulet"]
+            }
+        }
+    }
+}
+```
+
+V2 returns structured objects:
+
+```python
+MenuCollection(
+    data = {
+        "Lundi 9 février": {
+            "Restaurant Paul Appell": Menu(
+                date = "Lundi 9 février",
+                meals = {
+                    "Déjeuner": {
+                        "Entrées": ["Salade", "Soupe"],
+                        "Plats": ["Lasagne", "Poulet"]
+                    }
+                }
+            )
+        }
+    }
+)
+```
+
+### Adding features
+
+Suppose we want to search for a specific dish across all restaurants and dates.
+
+**V1**: we need to write a standalone function and pass the dictionary to it:
+
+<div class = "row">
+<div class = "version1">
+
+```{python}
+def search_dish(all_resto_u_all_infos, dish_name):
+    results = []
+    for date, restaurants in all_resto_u_all_infos.items():
+        for resto, menu in restaurants.items():
+            for meal_type, poles in menu.items():
+                for pole, meal in poles.items():
+                    for dish in meal:
+                        if dish_name.lower() in dish.lower():
+                            results.append({
+                                'date': date, 'restaurant': resto,
+                                'meal_type': meal_type, 'pole': pole, 'dish': dish
+                            })
+    return results
+
+
+results = search_dish(all_resto_u_all_infos, "pizza")
+```
+
+</div>
+</div>
+
+**V2**: we add a method directly to `MenuCollection`:
+
+<div class = "row">
+<div class = "version2">
+
+```{python}
+# Inside the MenuCollection class, we add:
+    def search_dish(self, dish_name):
+        results = []
+        for date, restaurants in self.data.items():
+            for resto_name, menu in restaurants.items():
+                for meal_type, poles in menu.meals.items():
+                    for pole, meal in poles.items():
+                        for dish in meal:
+                            if dish_name.lower() in dish.lower():
+                                results.append({
+                                    'date': date, 'restaurant': resto_name,
+                                    'meal_type': meal_type, 'pole': pole, 'dish': dish
+                                })
+        return results
+
+scraper = CrousScraper()
+collection = scraper.get_all_infos()
+scraper.close()
+results = collection.search_dish("pizza")
+```
+
+</div>
+</div>
+
+In V2, the method is **part of the object**. We don't need to pass the data, the object already has it via `self`. If we add 10 features, they are 10 methods in the class, all in one place. In V1, they would be 10 scattered functions.
+
+
+## Running
+
+<div class = "row">
+<div class = "version2">
+
+```{python}
+def show_item(list_):
+    i = 1
+    for item in list_:
+        print('%s : %s' % (str(i), item))
+        i += 1
+
+def main():
+    scraper = CrousScraper()
+    collection = scraper.get_all_infos()
+    scraper.close()
+    
+    quit = 'N'
+    change_rest = 'Y'
+    
+    while quit == 'N':
+        dates = collection.get_dates()
+        show_item(dates)
+        date_choosed = int(input('Select the date (type the number aside): '))
+        
+        restaurants = collection.get_restaurants(dates[date_choosed - 1])
+        
+        while change_rest == 'Y':
+            print('---------------------------------------\n\n')
+            show_item(restaurants)
+            rest_choosed = int(input('Select the restaurant (type the number aside): '))
+            
+            menu = collection.data[dates[date_choosed - 1]][restaurants[rest_choosed - 1]]
+            meal_keys = list(menu.meals.keys())
+            show_item(meal_keys)
+            meal_choosed = int(input('Select the meal (type the number aside): '))
+            
+            meal = menu.meals[meal_keys[meal_choosed - 1]]
+            for pole in meal:
+                print('''%s :
+                %s
+                  ''' % (pole, meal[pole]))
+            
+            change_rest = input('Do you want to select another restaurant ? (Y/N): ')
+        
+        quit = input('Do you want to quit ? (Y/N): ')
+        if quit == 'N':
+            change_rest = 'Y'
+
+main()
+```
+
+</div>
+</div>
+
+
+<p>&nbsp;</p>
+
+<div style="border:1px solid; padding:10px; margin-bottom:10px; border-radius: 10px; background-color: #f9f9f9;">
+
+**Exercise 1:** Add a method `get_meal_types(self, date, restaurant_name)` to the `MenuCollection` class that returns the list of meal types (e.g., "Déjeuner", "Dîner") for a given date and restaurant.
+
+<details>
+<summary>Click here to see the solution</summary>
+```{python, echo = T, collapse = TRUE}
+# Inside MenuCollection:
+    def get_meal_types(self, date, restaurant_name):
+        return list(self.data[date][restaurant_name].meals.keys())
+```
+</details>
+
+<p>&nbsp;</p>
+
+**Exercise 2:** Add a method `count_restaurants(self)` to `MenuCollection` that returns the total number of unique restaurants across all dates.
+
+<details>
+<summary>Click here to see the solution</summary>
+```{python, echo = T, collapse = TRUE}
+# Inside MenuCollection:
+    def count_restaurants(self):
+        all_restaurants = set()
+        for date in self.data:
+            for resto_name in self.data[date]:
+                all_restaurants.add(resto_name)
+        return len(all_restaurants)
+```
+</details>
+
+</div>
+
+<p>&nbsp;</p>
+
+# Inheritance
+
+Python supports **inheritance**: a class can be built on top of another class, reusing and extending its code. The syntax is:
+
+```python
+class DerivedClassName(BaseClassName):
+    ...
+```
+
+The derived class inherits all methods and attributes from the base class. It can then **override** existing methods (replace them with new behavior) or **add** new methods. The `super()` function lets you call methods from the base class.
+
+Let's say we want to factor out the generic scraping logic (driver management, page navigation) from the specific CROUS logic (parsing menus, extracting dates). We can create a base class:
+
+<div class = "row">
+<div class = "python">
+
+```{python, collapse = T, eval = T}
+class BaseScraper:
+  
+    USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:147.0) Gecko/20100101 Firefox/147.0'
+    
+    def __init__(self):
+        self.driver = None
+    
+    def _init_driver(self):
+        firefox_options = Options()
+        firefox_options.set_preference("general.useragent.override", self.USER_AGENT)
+        firefox_options.add_argument("--headless")
+        self.driver = webdriver.Firefox(options=firefox_options)
+    
+    def _get_page(self, url):
+        time.sleep(2 + random.uniform(0, 8))
+        self.driver.get(url)
+    
+    def close(self):
+        if self.driver:
+            self.driver.quit()
+            self.driver = None
+    
+```
+
+</div>
+</div>
+
+`BaseScraper` contains all the logic that is common to any scraping task: managing the driver, navigating to a page, closing the browser. 
+
+Now we can create specialized scrapers that inherit from `BaseScraper`. Each one gets `_init_driver()`, `_get_page()`, and `close()` for free, and only needs to implement its own `scrape()`:
+
+<div class = "row">
+<div class = "python">
+
+```{python, collapse = T}
+class CrousScraper(BaseScraper):
+    
+    BASE_URL = 'https://www.crous-strasbourg.fr/se-restaurer/ou-manger/'
+    
+    def __init__(self):
+        # super().__init__() calls BaseScraper.__init__()
+        super().__init__()
+        self._init_driver()  # inherited from BaseScraper
+    
+    def get_all_restaurants_links(self):
+        self.driver.get(self.BASE_URL)
+        elements = self.driver.find_elements(By.CSS_SELECTOR, 'li a')
+        
+        restaurants = []
+        for element in elements:
+            link = element.get_attribute("href")
+            if link and '/restaurant/' in link:
+                name = self._get_restaurant_name(link)
+                restaurants.append(Restaurant(name, link))
+        return restaurants
+    
+    def _get_restaurant_name(self, link):
+        name = re.findall('restaurant/(.*)/', link)[0]
+        name = re.sub('-', ' ', name)
+        name = re.sub(' 2', '', name)
+        return name.title()
+    
+    def get_all_meals_from_resto_u(self, restaurant):
+        self._get_page(restaurant.url)
+        menu_elements = self.driver.find_elements(By.CLASS_NAME, 'menu')
+        
+        menu_collection = MenuCollection()
+        for menu_elem in menu_elements:
+            date = self._get_date(menu_elem)
+            menu = Menu(date)
+            
+            meal_elements = menu_elem.find_elements(By.CLASS_NAME, 'meal')
+            for meal_elem in meal_elements:
+                meal_type, pole_elements = self._get_meal_type_and_poles(meal_elem)
+                for pole_elem in pole_elements:
+                    pole, meal = self._get_meal_infos(pole_elem)
+                    menu.add_meal(meal_type, pole, meal)
+            
+            menu_collection.add_menu(date, restaurant.name, menu)
+        return menu_collection
+    
+    def _get_date(self, menu_elem):
+        date_elem = menu_elem.find_element(By.CLASS_NAME, 'menu_date_title')
+        return re.sub('Menu du ', '', date_elem.text)
+    
+    def _get_meal_type_and_poles(self, meal_elem):
+        meal_type = meal_elem.find_element(By.CLASS_NAME, "meal_title").text
+        pole_elements = meal_elem.find_elements(By.CSS_SELECTOR, 'ul.meal_foodies > li')
+        return meal_type, pole_elements
+    
+    def _get_meal_infos(self, pole_elem):
+        pole_html = pole_elem.get_attribute('innerHTML')
+        pole, meal_infos = pole_html.split("<ul><li>")
+        meal_infos = meal_infos.split('</li><li>')
+        meal_infos = [re.sub('</li></ul>','',meal) for meal in meal_infos if meal != '-']
+        return pole, meal_infos
+    
+    def get_all_infos(self):
+        restaurants = self.get_all_links()
+        all_menus = MenuCollection()
+        for restaurant in restaurants:
+            resto_menus = self.get_all_meals_from_resto_u(restaurant)
+            for date in resto_menus.data.keys():
+                for resto_name, menu in resto_menus.data[date].items():
+                    all_menus.add_menu(date, resto_name, menu)
+        return all_menus
+```
+
+</div>
+</div>
+
+Let's test it — `CrousScraper` now inherits `_init_driver()`, `_get_page()`, and `close()` from `BaseScraper` without rewriting them:
+
+<div class = "row">
+<div class = "python">
+
+```{python, eval = T, collapse = T}
+scraper = CrousScraper()
+
+# Scrape Resto U Esplanade
+esplanade = Restaurant('Resto U Esplanade', 'https://www.crous-strasbourg.fr/restaurant/resto-u-esplanade-2/')
+collection = scraper.get_all_meals_from_resto_u(esplanade)
+print(collection)
+
+scraper.close()
+```
+
+</div>
+</div>
+
+# Exercise
+
+Rewrite your code from Chapter 2 into a class
+

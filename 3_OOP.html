@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Object Oriented Programming</title>
+
+<script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-6.5.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+.tocify-subheader {
+  display: inline;
+}
+.tocify-subheader .tocify-item {
+  font-size: 0.95em;
+}
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Python</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="1_Regex.html">Regex</a>
+</li>
+<li>
+  <a href="2_Scrapping.html">Scrapping</a>
+</li>
+<li>
+  <a href="3_OOP.html">OOP</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/master-ds2e/">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Object Oriented Programming</h1>
+
+</div>
+
+
+<style>
+div.python pre { background-color: #e9f7f5; }
+div.version1 pre { background-color: #fff5e6; }
+div.version2 pre { background-color: #e6f7ff; }
+</style>
+<div id="classes" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Classes</h1>
+<div id="why-classes" class="section level2" number="1.1">
+<h2><span class="header-section-number">1.1</span> Why classes?</h2>
+<p>In the previous chapters, we wrote functions to scrape university
+restaurant menus. Each function does one thing: get a page, extract a
+date, parse meals, etc. This works fine, but as our code grows, we face
+some issues:</p>
+<ul>
+<li>We pass the same arguments (like <code>driver</code>) to many
+functions.</li>
+<li>Our data is stored in deeply nested dictionaries that are hard to
+read and maintain.</li>
+<li>If someone new reads the code, they have to understand all the
+functions and how they connect.</li>
+</ul>
+<p>A <strong>class</strong> groups related data and functions together
+into a single object.</p>
+</div>
+<div id="scope-and-namespaces" class="section level2" number="1.2">
+<h2><span class="header-section-number">1.2</span> Scope and
+Namespaces</h2>
+<p>It’s important to understand how Python finds variables. Python uses
+the <strong>LEGB</strong> rule:</p>
+<ol style="list-style-type: decimal">
+<li><strong>L</strong>ocal: inside the current function</li>
+<li><strong>E</strong>nclosing: inside any parent function (for nested
+functions)</li>
+<li><strong>G</strong>lobal: at the module/file level</li>
+<li><strong>B</strong>uilt-in: Python’s built-in names
+(<code>print</code>, <code>len</code>, etc.)</li>
+</ol>
+<div class="row">
+<div class="python">
+<pre class="python"><code>x = &quot;global&quot;
+
+def my_function():
+    x = &quot;local&quot;
+    print(x)  # prints &quot;local&quot; (found in Local first)
+
+my_function()
+## local
+print(x)  # prints &quot;global&quot;
+## global</code></pre>
+</div>
+</div>
+<p>A more complete example showing <code>nonlocal</code> and
+<code>global</code>:</p>
+<div class="row">
+<div class="python">
+<pre class="python"><code>def scope_test():
+    def do_local():
+        spam = &quot;local spam&quot;
+
+    def do_nonlocal():
+        nonlocal spam
+        spam = &quot;nonlocal spam&quot;
+
+    def do_global():
+        global spam
+        spam = &quot;global spam&quot;
+
+    spam = &quot;test spam&quot;
+    do_local()
+    print(&quot;After local assignment:&quot;, spam)
+    do_nonlocal()
+    print(&quot;After nonlocal assignment:&quot;, spam)
+    do_global()
+    print(&quot;After global assignment:&quot;, spam)
+
+scope_test()
+## After local assignment: test spam
+## After nonlocal assignment: nonlocal spam
+## After global assignment: nonlocal spam
+print(&quot;In global scope:&quot;, spam)
+## In global scope: global spam</code></pre>
+</div>
+</div>
+</div>
+<div id="defining-a-class" class="section level2" number="1.3">
+<h2><span class="header-section-number">1.3</span> Defining a class</h2>
+<p>The simplest form of a class definition:</p>
+<pre><code>class ClassName:
+    &lt;statement-1&gt;
+    ...
+    &lt;statement-N&gt;</code></pre>
+<p>A class supports two kinds of operations: <strong>attribute
+references</strong> (accessing names with a dot: <code>obj.name</code>)
+and <strong>instantiation</strong> (creating a new object from the
+class).</p>
+<p>Let’s start with a simple example related to our scraper. Imagine we
+want to represent a restaurant:</p>
+<div class="row">
+<div class="python">
+<pre class="python"><code>class Restaurant:
+    &quot;&quot;&quot;A simple class to represent a restaurant&quot;&quot;&quot;
+    base_url = &#39;https://www.crous-strasbourg.fr&#39;
+
+    def full_url(self):
+        return self.base_url + &#39;/se-restaurer/&#39;
+
+# Attribute references
+Restaurant.base_url
+## &#39;https://www.crous-strasbourg.fr&#39;
+
+# Instantiation
+r = Restaurant()
+
+r.full_url()
+## &#39;https://www.crous-strasbourg.fr/se-restaurer/&#39;
+r.base_url
+## &#39;https://www.crous-strasbourg.fr&#39;</code></pre>
+</div>
+</div>
+</div>
+<div id="the-__init__-method" class="section level2" number="1.4">
+<h2><span class="header-section-number">1.4</span> The
+<code>__init__</code> method</h2>
+<p>Most classes need to set up an initial state when they are created.
+This is done with the special method <code>__init__()</code>, which is
+called automatically when you create a new instance.</p>
+<div class="row">
+<div class="python">
+<pre class="python"><code>class Restaurant:
+    def __init__(self, name, url):
+        self.name = name
+        self.url = url
+
+r = Restaurant(&#39;Resto U Esplanade&#39;, &#39;https://www.crous-strasbourg.fr/restaurant/resto-u-esplanade/&#39;)
+r.name
+## &#39;Resto U Esplanade&#39;
+r.url
+## &#39;https://www.crous-strasbourg.fr/restaurant/resto-u-esplanade/&#39;</code></pre>
+</div>
+</div>
+<p><code>self</code> is the instance itself. When you call
+<code>r.full_url()</code>, Python automatically passes <code>r</code> as
+the first argument. So <code>r.full_url()</code> is equivalent to
+<code>Restaurant.full_url(r)</code>.</p>
+</div>
+<div id="class-variables-vs-instance-variables" class="section level2"
+number="1.5">
+<h2><span class="header-section-number">1.5</span> Class variables vs
+instance variables</h2>
+<p><strong>Class variables</strong> are shared by all instances.
+<strong>Instance variables</strong> are unique to each instance.</p>
+<div class="row">
+<div class="python">
+<pre class="python"><code>class Restaurant:
+    source = &#39;CROUS Strasbourg&#39;   # class variable shared by all instances
+
+    def __init__(self, name, url):
+        self.name = name          # instance variable unique to each instance
+        self.url = url
+
+r1 = Restaurant(&#39;Esplanade&#39;, &#39;/restaurant/resto-u-esplanade/&#39;)
+r2 = Restaurant(&#39;Paul Appell&#39;, &#39;/restaurant/resto-u-paul-appell/&#39;)
+
+r1.source   
+## &#39;CROUS Strasbourg&#39;
+r2.source   
+## &#39;CROUS Strasbourg&#39;
+
+r1.name   
+## &#39;Esplanade&#39;
+r2.name     
+## &#39;Paul Appell&#39;</code></pre>
+</div>
+</div>
+<p><strong>Careful with mutable class variables!</strong> A list defined
+as a class variable is shared by all instances, which can lead to
+unexpected behavior:</p>
+<div class="row">
+<div class="python">
+<pre class="python"><code># WRONG
+class Restaurant:
+    menus = [] # shared by ALL restaurants!
+
+    def __init__(self, name):
+        self.name = name
+
+    def add_menu(self, menu):
+        self.menus.append(menu)
+
+r1 = Restaurant(&#39;Esplanade&#39;)
+r2 = Restaurant(&#39;Paul Appell&#39;)
+
+r1.add_menu(&#39;Lundi: Lasagne&#39;)
+r2.add_menu(&#39;Lundi: Poulet&#39;)
+
+r1.menus   
+## [&#39;Lundi: Lasagne&#39;, &#39;Lundi: Poulet&#39;]</code></pre>
+<pre class="python"><code># CORRECT
+class Restaurant:
+    def __init__(self, name):
+        self.name = name
+        self.menus = [] # new list for each restaurant
+
+    def add_menu(self, menu):
+        self.menus.append(menu)
+
+r1 = Restaurant(&#39;Esplanade&#39;)
+r2 = Restaurant(&#39;Paul Appell&#39;)
+
+r1.add_menu(&#39;Lundi: Lasagne&#39;)
+r2.add_menu(&#39;Lundi: Poulet&#39;)
+
+r1.menus    
+## [&#39;Lundi: Lasagne&#39;]
+r2.menus    
+## [&#39;Lundi: Poulet&#39;]</code></pre>
+</div>
+</div>
+<p>This distinction will matter when we build our scraper class. For
+instance, <code>USER_AGENT</code> and <code>BASE_URL</code> are the same
+for every scraper instance — they should be class variables. But
+<code>driver</code> (the browser window) must be unique to each instance
+— it must be an instance variable. If <code>driver</code> were a class
+variable, all scraper instances would share the same browser window. If
+one calls <code>close()</code>, the other would break.</p>
+</div>
+<div id="methods-calling-other-methods" class="section level2"
+number="1.6">
+<h2><span class="header-section-number">1.6</span> Methods calling other
+methods</h2>
+<p>Inside a class, methods can call other methods using
+<code>self</code>:</p>
+<div class="row">
+<div class="python">
+<pre class="python"><code>class Restaurant:
+    def __init__(self, name):
+        self.name = name
+        self.menus = []
+
+    def add_menu(self, menu):
+        self.menus.append(menu)
+
+    def add_week_menus(self, weekly_menus):
+        for menu in weekly_menus:
+            self.add_menu(menu)
+
+r = Restaurant(&#39;Esplanade&#39;)
+r.add_week_menus([&#39;Lundi: Lasagne&#39;, &#39;Mardi: Poulet&#39;, &#39;Mercredi: Poisson&#39;])
+r.menus  
+## [&#39;Lundi: Lasagne&#39;, &#39;Mardi: Poulet&#39;, &#39;Mercredi: Poisson&#39;]</code></pre>
+</div>
+</div>
+<p>
+ 
+</p>
+<div
+style="border:1px solid; padding:10px; margin-bottom:10px; border-radius: 10px; background-color: #f9f9f9;">
+<p><strong>Exercise:</strong> Create a class <code>Counter</code> with
+an <code>__init__</code> that starts a count at 0, a method
+<code>increment()</code> that adds 1, and a method
+<code>get_count()</code> that returns the current count.</p>
+<details>
+<summary>
+Click here to see the solution
+</summary>
+<pre class="python"><code>class Counter:
+    def __init__(self):
+        self.count = 0
+    
+    def increment(self):
+        self.count += 1
+    
+    def get_count(self):
+        return self.count
+
+c = Counter()
+c.increment()
+c.increment()
+c.increment()
+print(c.get_count()) 
+## 3</code></pre>
+</details>
+</div>
+<p>
+ 
+</p>
+</div>
+</div>
+<div id="from-functions-to-a-class" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> From Functions to a
+Class</h1>
+<div id="our-functional-code" class="section level2" number="2.1">
+<h2><span class="header-section-number">2.1</span> Our functional
+code</h2>
+<p>In the Selenium chapter, we wrote these functions to scrape
+restaurant menus:</p>
+<div class="row">
+<div class="python">
+<pre class="python"><code>from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+import time
+import random
+import re
+
+user_agent = {&#39;User-Agent&#39;:&#39;Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:147.0) Gecko/20100101 Firefox/147.0&#39;}
+
+def get_driver():
+    firefox_options = Options()
+    firefox_options.set_preference(&quot;general.useragent.override&quot;, self.USER_AGENT)
+    firefox_options.add_argument(&quot;--headless&quot;)
+    driver = webdriver.Firefox(options=firefox_options)
+    return driver
+
+def get_all_links(driver):
+    urlpage = &#39;https://www.crous-strasbourg.fr/se-restaurer/ou-manger/&#39;
+    driver.get(urlpage)
+    elements = driver.find_elements(By.CSS_SELECTOR, &#39;li a&#39;)
+    names_links = dict()
+    for element in elements:
+        link = element.get_attribute(&quot;href&quot;)
+        if &#39;/restaurant/&#39; in link:
+            name = re.findall(&#39;restaurant/(.*)/&#39;,link)[0]
+            name = re.sub(&#39;-&#39;,&#39; &#39;,name)
+            name = re.sub(&#39; 2&#39;,&#39;&#39;,name)
+            name = name.title()
+            names_links.update({name:link})
+    return names_links
+
+def get_page(urlpage, driver):
+    time.sleep(2 + random.uniform(0,8))
+    driver.get(urlpage)
+
+def get_date(menu):
+    date_elem = menu.find_element(By.CLASS_NAME,&#39;menu_date_title&#39;)
+    date = date_elem.text
+    date = re.sub(&#39;Menu du &#39;,&#39;&#39;,date)
+    return date
+
+def get_meal_type_and_poles(meal):
+    meal_type = meal.find_element(By.CLASS_NAME,&quot;meal_title&quot;)
+    meal_by_poles = meal.find_elements(By.CSS_SELECTOR, &#39;ul.meal_foodies &gt; li&#39;)
+    return meal_type.text, meal_by_poles
+
+def get_meal_infos(meal_by_pole):
+    meal_by_pole_html = meal_by_pole.get_attribute(&#39;innerHTML&#39;)
+    pole, meal_infos = meal_by_pole_html.split(&quot;&lt;ul&gt;&lt;li&gt;&quot;)
+    meal_infos = meal_infos.split(&#39;&lt;/li&gt;&lt;li&gt;&#39;)
+    meal_infos = [re.sub(&#39;&lt;/li&gt;&lt;/ul&gt;&#39;,&#39;&#39;,meal) for meal in meal_infos if meal != &#39;-&#39;]
+    return pole, meal_infos
+
+def get_all_meals_from_resto_u(name, urlpage, driver):
+    get_page(urlpage, driver)
+    menus = driver.find_elements(By.CLASS_NAME,&#39;menu&#39;)
+    resto_u_all_infos = dict()
+    for menu in menus:
+        date = get_date(menu)
+        meals = driver.find_elements(By.CLASS_NAME,&#39;meal&#39;)
+        resto_u_all_infos.update({date:{name:dict()}})
+        for meal in meals:
+            meal_type, meal_by_poles = get_meal_type_and_poles(meal)
+            resto_u_all_infos[date][name].update({meal_type:dict()})
+            for meal_by_pole in meal_by_poles:
+                pole, meal_infos = get_meal_infos(meal_by_pole)
+                resto_u_all_infos[date][name][meal_type].update({pole:meal_infos})
+    return resto_u_all_infos
+
+def get_all_infos():
+    driver = get_driver()
+    links = get_all_links(driver)
+    all_resto_u_all_infos = dict()
+    for name, link in links.items():
+        resto_u_all_infos = get_all_meals_from_resto_u(name, link, driver)
+        if resto_u_all_infos:
+            for date in resto_u_all_infos.keys():
+                if date in all_resto_u_all_infos:
+                    all_resto_u_all_infos[date].update(resto_u_all_infos[date])
+                else:
+                    all_resto_u_all_infos.update({date:resto_u_all_infos[date]})
+    driver.quit()
+    return all_resto_u_all_infos</code></pre>
+</div>
+</div>
+<p>We pass <code>driver</code> to almost every function. It’s a shared
+resource that all functions need. The <code>user_agent</code> and
+<code>BASE_URL</code> are global variables floating around. If we want
+to add new features (e.g., search for a dish), we write yet another
+standalone function that needs the whole nested dictionary passed to
+it.</p>
+</div>
+<div id="wrapping-functions-into-a-class" class="section level2"
+number="2.2">
+<h2><span class="header-section-number">2.2</span> Wrapping functions
+into a class</h2>
+<p>We take all the functions and the shared state (<code>driver</code>,
+<code>user_agent</code>, <code>BASE_URL</code>) and put them together
+inside a class. The <code>driver</code> that was passed around becomes
+<code>self.driver</code>.</p>
+<div class="row">
+<div class="version1">
+<pre class="python"><code>from selenium import webdriver
+from selenium.webdriver.firefox.options import Options  
+from selenium.webdriver.common.by import By
+import time
+import random
+import re
+
+class CrousScraper:
+    
+    USER_AGENT = &#39;Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:147.0) Gecko/20100101 Firefox/147.0&#39;
+    BASE_URL = &#39;https://www.crous-strasbourg.fr/se-restaurer/ou-manger/&#39;
+    
+    def __init__(self):
+        self.driver = None
+        self.get_driver()
+    
+    def get_driver(self):
+        firefox_options = Options()
+        firefox_options.set_preference(&quot;general.useragent.override&quot;, self.USER_AGENT)
+        firefox_options.add_argument(&quot;--headless&quot;)
+        self.driver = webdriver.Firefox(options=firefox_options)
+    
+    def close(self):
+        if self.driver:
+            self.driver.quit()
+            self.driver = None
+    
+    def get_all_links(self):
+        self.driver.get(self.BASE_URL)
+        elements = self.driver.find_elements(By.CSS_SELECTOR, &#39;li a&#39;)
+        
+        names_links = dict()
+        for element in elements:
+            link = element.get_attribute(&quot;href&quot;)
+            if link and &#39;/restaurant/&#39; in link:
+                name = re.findall(&#39;restaurant/(.*)/&#39;, link)[0]
+                name = re.sub(&#39;-&#39;, &#39; &#39;, name)
+                name = re.sub(&#39; 2&#39;, &#39;&#39;, name)
+                name = name.title()
+                names_links.update({name: link})
+        return names_links
+    
+    def get_page(self, urlpage):
+        time.sleep(2 + random.uniform(0, 8))
+        self.driver.get(urlpage)
+    
+    def get_date(self, menu):
+        date_elem = menu.find_element(By.CLASS_NAME, &#39;menu_date_title&#39;)
+        date = date_elem.text
+        return re.sub(&#39;Menu du &#39;, &#39;&#39;, date)
+    
+    def get_meal_type_and_poles(self, meal):
+        meal_type = meal.find_element(By.CLASS_NAME, &quot;meal_title&quot;)
+        meal_by_poles = meal.find_elements(By.CSS_SELECTOR, &#39;ul.meal_foodies &gt; li&#39;)
+        return meal_type.text, meal_by_poles
+    
+    def get_meal_infos(self, meal_by_pole):
+        meal_by_pole_html = meal_by_pole.get_attribute(&#39;innerHTML&#39;)
+        pole, meal_infos = meal_by_pole_html.split(&quot;&lt;ul&gt;&lt;li&gt;&quot;)
+        meal_infos = meal_infos.split(&#39;&lt;/li&gt;&lt;li&gt;&#39;)
+        meal_infos = [re.sub(&#39;&lt;/li&gt;&lt;/ul&gt;&#39;,&#39;&#39;,meal) for meal in meal_infos if meal != &#39;-&#39;]
+        return pole, meal_infos
+    
+    def get_all_meals_from_resto_u(self, name, urlpage):
+        self.get_page(urlpage)
+        menus = self.driver.find_elements(By.CLASS_NAME, &#39;menu&#39;)
+        
+        resto_u_all_infos = dict()
+        for menu in menus:
+            date = self.get_date(menu)
+            meals = menu.find_elements(By.CLASS_NAME, &#39;meal&#39;)
+            resto_u_all_infos.update({date: {name: dict()}})
+            for meal in meals:
+                meal_type, meal_by_poles = self.get_meal_type_and_poles(meal)
+                resto_u_all_infos[date][name].update({meal_type: dict()})
+                for meal_by_pole in meal_by_poles:
+                    pole, meal_infos = self.get_meal_infos(meal_by_pole)
+                    resto_u_all_infos[date][name][meal_type].update({pole: meal_infos})
+        return resto_u_all_infos
+    
+    def get_all_infos(self):
+        links = self.get_all_links()
+        all_resto_u_all_infos = dict()
+        for name, link in links.items():
+            resto_u_all_infos = self.get_all_meals_from_resto_u(name, link)
+            if resto_u_all_infos:
+                for date in resto_u_all_infos.keys():
+                    if date in all_resto_u_all_infos:
+                        all_resto_u_all_infos[date].update(resto_u_all_infos[date])
+                    else:
+                        all_resto_u_all_infos.update({date: resto_u_all_infos[date]})
+        return all_resto_u_all_infos</code></pre>
+</div>
+</div>
+<p>Let’s test the class with a single restaurant:</p>
+<div class="row">
+<div class="version1">
+<pre class="python"><code>scraper = CrousScraper()
+
+# Scrape Resto U Esplanade
+esplanade = scraper.get_all_meals_from_resto_u(&#39;Resto U Esplanade&#39;, &#39;https://www.crous-strasbourg.fr/restaurant/resto-u-esplanade-2/&#39;)
+print(esplanade)
+## {&#39;lundi 9 février 2026&#39;: {&#39;Resto U Esplanade&#39;: {&#39;Déjeuner&#39;: {&#39;Menus étudiants 1er et 2ème étage&#39;: [&#39;2ème étage :&#39;, &#39;Cheeseburger&#39;, &#39;Carottes&#39;, &#39;Frites&#39;, &#39;Jambalaya aux haricots rouges&#39;, &#39;Riz pilaf&#39;, &#39;1er étage :&#39;, &#39;Merlu à la napolitaine&#39;, &quot;Carottes à l&#39;orientale&quot;, &#39;Riz pilaf&#39;, &#39;Penne, sauce bolognaise maison&#39;, &#39;Jambalaya aux haricots rouges&#39;, &#39;Riz pilaf&#39;], &#39;Desserts 1er et 2ème étage&#39;: [&#39;Desserts variés&#39;], &#39;Cristal Shop (RDC) Cafétéria&#39;: [&#39;Plat à emporter en box en verre ou sur place&#39;, &#39;Merlu à la napolitaine&#39;, &quot;Carottes à l&#39;orientale&quot;, &#39;Riz pilaf&#39;, &#39;Jambalaya aux haricots rouges&#39;, &#39;Riz pilaf&#39;], &#39;Origines de nos viandes du jour&#39;: [&#39;menu non communiqué&#39;]}, &#39;Dîner&#39;: {&#39;Menus étudiants 2ème étage&#39;: [&#39;Cordon bleu, sauce tomate&#39;, &#39;Ruz biryani&#39;, &quot;Tajine d&#39;aubergines au fenouil&quot;, &#39;Boulgour&#39;], &#39;Desserts 2ème étage&#39;: [&#39;Desserts variés&#39;], &#39;Origines de nos viandes du jour&#39;: [&#39;Volaille origine France&#39;]}}}, &#39;&#39;: {&#39;Resto U Esplanade&#39;: {&#39;&#39;: {&#39;Menus étudiants 2ème étage&#39;: [&#39;Poisson pané, sauce rémoulade&#39;, &#39;Riz cantonnais&#39;], &#39;Desserts 2ème étage&#39;: [&#39;Desserts variés&#39;], &#39;Origines de nos viandes du jour&#39;: [&#39;menu non communiqué&#39;]}}}}
+
+scraper.close()</code></pre>
+</div>
+</div>
+<ul>
+<li><p><code>driver</code> is no longer passed as an argument, it lives
+in <code>self.driver</code>.</p></li>
+<li><p><code>USER_AGENT</code> and <code>BASE_URL</code> are
+<strong>class variables</strong>: shared by all instances, defined
+once.</p></li>
+<li><p><code>__init__</code> creates the driver automatically when we
+instantiate the class.</p></li>
+<li><p>Every function became a <strong>method</strong> (first argument
+is <code>self</code>).</p></li>
+</ul>
+<p>
+ 
+</p>
+</div>
+</div>
+<div id="going-further" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> Going further</h1>
+<div id="improving-the-design" class="section level2" number="3.1">
+<h2><span class="header-section-number">3.1</span> Improving the
+design</h2>
+<p>V1 is a direct translation from functions to a class. It works, but
+we can do better. Here are the improvements we’ll make:</p>
+<ul>
+<li><strong>Use private methods</strong>: prefix internal helpers with
+<code>_</code> to separate what’s public from what’s internal.</li>
+<li><strong>Use data classes</strong>: instead of nested dictionaries,
+create proper objects to hold our data.</li>
+</ul>
+<p>Python does not have truly private variables. However, the convention
+is to prefix internal names with an underscore <code>_</code>.</p>
+<pre class="python"><code>class CrousScraper:
+    def get_all_infos(self): # public: meant to be called by the user
+        pass
+    
+    def _get_date(self, menu): # private: internal helper
+        pass</code></pre>
+</div>
+<div id="dataclasses" class="section level2" number="3.2">
+<h2><span class="header-section-number">3.2</span> Dataclasses</h2>
+<p>A <code>dataclass</code> is a shortcut for creating classes that
+mainly store data. Instead of writing <code>__init__</code>,
+<code>__repr__</code>, and <code>__eq__</code> yourself, the
+<code>@dataclass</code> decorator generates them automatically.</p>
+<div class="row">
+<div class="python">
+<pre class="python"><code>from dataclasses import dataclass
+
+# Without dataclass
+class Restaurant:
+    def __init__(self, name, url):
+        self.name = name
+        self.url = url
+    
+    def __repr__(self):
+        return f&quot;Restaurant(name={self.name}, url={self.url})&quot;
+
+# With dataclass
+@dataclass
+class Restaurant:
+    name: str
+    url: str</code></pre>
+<pre class="python"><code>r = Restaurant(&#39;Resto U Esplanade&#39;, &#39;https://www.crous-strasbourg.fr/restaurant/resto-u-esplanade/&#39;)
+r.name
+## &#39;Resto U Esplanade&#39;
+r.url
+## &#39;https://www.crous-strasbourg.fr/restaurant/resto-u-esplanade/&#39;
+print(r)
+## Restaurant(name=&#39;Resto U Esplanade&#39;, url=&#39;https://www.crous-strasbourg.fr/restaurant/resto-u-esplanade/&#39;)</code></pre>
+</div>
+</div>
+<p>For our scraper, we can define data classes to hold the structured
+menu data:</p>
+<div class="row">
+<div class="version2">
+<pre class="python"><code>from dataclasses import dataclass, field
+
+@dataclass
+class Restaurant:
+    name: str
+    url: str
+
+@dataclass
+class Menu:
+    date: str
+    meals: dict = field(default_factory=dict)
+    # Structure : {meal_type: {pole: [meal]}}
+    
+    def add_meal(self, meal_type, pole, meal):
+        if meal_type not in self.meals:
+            self.meals[meal_type] = {}
+        self.meals[meal_type][pole] = meal
+
+@dataclass
+class MenuCollection:
+    data: dict = field(default_factory=dict)
+    # Structure : {date: {restaurant_name: Menu}}
+    
+    def add_menu(self, date, restaurant_name, menu):
+        if date not in self.data:
+            self.data[date] = {}
+        self.data[date][restaurant_name] = menu
+    
+    def get_dates(self):
+        return list(self.data.keys())
+    
+    def get_restaurants(self, date):
+        return list(self.data[date].keys())</code></pre>
+</div>
+</div>
+<p>The use of <code>field(default_factory=dict)</code> avoids the
+mutable class variable trap we saw earlier with the
+<code>Restaurant.menus</code> example. Each instance gets its own fresh
+dictionary.</p>
+<p>Let’s see how these data classes work together:</p>
+<div class="row">
+<div class="python">
+<pre class="python"><code># Create a menu and add meals to it
+m = Menu(date=&quot;Lundi 9 février&quot;)
+m.add_meal(&quot;Déjeuner&quot;, &quot;Menus étudiants 1er et 2ème étage&quot;, [&quot;Salade verte&quot;, &quot;Soupe de légumes&quot;])
+m.add_meal(&quot;Déjeuner&quot;, &quot;Cristal Shop (RDC) Cafétéria&quot;, [&quot;Lasagne&quot;, &quot;Poulet rôti&quot;])
+print(m)
+## Menu(date=&#39;Lundi 9 février&#39;, meals={&#39;Déjeuner&#39;: {&#39;Menus étudiants 1er et 2ème étage&#39;: [&#39;Salade verte&#39;, &#39;Soupe de légumes&#39;], &#39;Cristal Shop (RDC) Cafétéria&#39;: [&#39;Lasagne&#39;, &#39;Poulet rôti&#39;]}})
+
+# Create a collection and add the menu
+collection = MenuCollection()
+collection.add_menu(&quot;Lundi 9 février&quot;, &quot;Esplanade&quot;, m)
+collection.get_dates()
+## [&#39;Lundi 9 février&#39;]
+collection.get_restaurants(&quot;Lundi 9 février&quot;)
+## [&#39;Esplanade&#39;]</code></pre>
+</div>
+</div>
+<p>
+ 
+</p>
+<div
+style="border:1px solid; padding:10px; margin-bottom:10px; border-radius: 10px; background-color: #f9f9f9;">
+<p><strong>Exercise 1:</strong> Using <code>@dataclass</code>, create a
+class <code>Student</code> with attributes <code>name</code> (str),
+<code>program</code> (str), and <code>grade</code> (float). Create a
+list of 2 students and convert them into a pandas DataFrame.</p>
+<details>
+<summary>
+Click here to see the solution
+</summary>
+<pre class="python"><code>from dataclasses import dataclass, asdict
+import pandas as pd
+
+@dataclass
+class Student:
+    name: str
+    program: str
+    grade: float
+
+students = [
+    Student(&#39;Alice&#39;, &#39;DS2E&#39;, 15.5),
+    Student(&#39;Bob&#39;, &#39;MPE&#39;, 12.3)
+]
+
+df = pd.DataFrame([asdict(s) for s in students])
+print(df)
+##     name program  grade
+## 0  Alice    DS2E   15.5
+## 1    Bob     MPE   12.3</code></pre>
+</details>
+</div>
+<p>
+ 
+</p>
+</div>
+<div id="scraper-v2" class="section level2" number="3.3">
+<h2><span class="header-section-number">3.3</span> Scraper (V2)</h2>
+<div class="row">
+<div class="version2">
+<pre class="python"><code>from selenium import webdriver
+from selenium.webdriver.firefox.options import Options  
+from selenium.webdriver.common.by import By
+import time
+import random
+import re
+
+class CrousScraper:
+    
+    USER_AGENT = &#39;Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:147.0) Gecko/20100101 Firefox/147.0&#39;
+    BASE_URL = &#39;https://www.crous-strasbourg.fr/se-restaurer/ou-manger/&#39;
+    
+    def __init__(self):
+        self.driver = None
+        self._init_driver()
+    
+    def _init_driver(self):
+        firefox_options = Options()
+        firefox_options.set_preference(&quot;general.useragent.override&quot;, self.USER_AGENT)
+        firefox_options.add_argument(&quot;--headless&quot;)
+        self.driver = webdriver.Firefox(options=firefox_options)
+    
+    
+    def close(self):
+        if self.driver:
+            self.driver.quit()
+            self.driver = None
+    
+    def get_all_restaurants_links(self):
+        self.driver.get(self.BASE_URL)
+        elements = self.driver.find_elements(By.CSS_SELECTOR, &#39;li a&#39;)
+        
+        restaurants = []
+        for element in elements:
+            link = element.get_attribute(&quot;href&quot;)
+            if link and &#39;/restaurant/&#39; in link:
+                name = self._get_restaurant_name(link)
+                restaurants.append(Restaurant(name, link))
+        return restaurants
+    
+    def _get_restaurant_name(self, link):
+        name = re.findall(&#39;restaurant/(.*)/&#39;, link)[0]
+        name = re.sub(&#39;-&#39;, &#39; &#39;, name)
+        name = re.sub(&#39; 2&#39;, &#39;&#39;, name)
+        return name.title()
+    
+    def _get_page(self, url):
+        time.sleep(2 + random.uniform(0, 8))
+        self.driver.get(url)
+    
+    def get_all_meals_from_resto_u(self, restaurant):
+        self._get_page(restaurant.url)
+        menu_elements = self.driver.find_elements(By.CLASS_NAME, &#39;menu&#39;)
+        
+        menu_collection = MenuCollection()
+        for menu_elem in menu_elements:
+            date = self._get_date(menu_elem)
+            menu = Menu(date)
+            
+            meal_elements = menu_elem.find_elements(By.CLASS_NAME, &#39;meal&#39;)
+            for meal_elem in meal_elements:
+                meal_type, pole_elements = self._get_meal_type_and_poles(meal_elem)
+                for pole_elem in pole_elements:
+                    pole, meal = self._get_meal_infos(pole_elem)
+                    menu.add_meal(meal_type, pole, meal)
+            
+            menu_collection.add_menu(date, restaurant.name, menu)
+        return menu_collection
+    
+    def _get_date(self, menu_elem):
+        date_elem = menu_elem.find_element(By.CLASS_NAME, &#39;menu_date_title&#39;)
+        return re.sub(&#39;Menu du &#39;, &#39;&#39;, date_elem.text)
+    
+    def _get_meal_type_and_poles(self, meal_elem):
+        meal_type = meal_elem.find_element(By.CLASS_NAME, &quot;meal_title&quot;).text
+        pole_elements = meal_elem.find_elements(By.CSS_SELECTOR, &#39;ul.meal_foodies &gt; li&#39;)
+        return meal_type, pole_elements
+    
+    def _get_meal_infos(self, pole_elem):
+        pole_html = pole_elem.get_attribute(&#39;innerHTML&#39;)
+        pole, meal_infos = pole_html.split(&quot;&lt;ul&gt;&lt;li&gt;&quot;)
+        meal_infos = meal_infos.split(&#39;&lt;/li&gt;&lt;li&gt;&#39;)
+        meal_infos = [re.sub(&#39;&lt;/li&gt;&lt;/ul&gt;&#39;,&#39;&#39;,meal) for meal in meal_infos if meal != &#39;-&#39;]
+        return pole, meal_infos
+    
+    def get_all_infos(self):
+        restaurants = self.get_all_links()
+        all_menus = MenuCollection()
+        for restaurant in restaurants:
+            resto_menus = self.get_all_meals_from_resto_u(restaurant)
+            for date in resto_menus.data.keys():
+                for resto_name, menu in resto_menus.data[date].items():
+                    all_menus.add_menu(date, resto_name, menu)
+        return all_menus</code></pre>
+</div>
+</div>
+<p>Let’s test the class with Resto U Esplanade:</p>
+<div class="row">
+<div class="version2">
+<pre class="python"><code>scraper = CrousScraper()
+
+# Scrape Resto U Esplanade
+esplanade = Restaurant(&#39;Resto U Esplanade&#39;, &#39;https://www.crous-strasbourg.fr/restaurant/resto-u-esplanade-2/&#39;)
+collection = scraper.get_all_meals_from_resto_u(esplanade)
+print(collection)
+## MenuCollection(data={&#39;lundi 9 février 2026&#39;: {&#39;Resto U Esplanade&#39;: Menu(date=&#39;lundi 9 février 2026&#39;, meals={&#39;Déjeuner&#39;: {&#39;Menus étudiants 1er et 2ème étage&#39;: [&#39;2ème étage :&#39;, &#39;Cheeseburger&#39;, &#39;Carottes&#39;, &#39;Frites&#39;, &#39;Jambalaya aux haricots rouges&#39;, &#39;Riz pilaf&#39;, &#39;1er étage :&#39;, &#39;Merlu à la napolitaine&#39;, &quot;Carottes à l&#39;orientale&quot;, &#39;Riz pilaf&#39;, &#39;Penne, sauce bolognaise maison&#39;, &#39;Jambalaya aux haricots rouges&#39;, &#39;Riz pilaf&#39;], &#39;Desserts 1er et 2ème étage&#39;: [&#39;Desserts variés&#39;], &#39;Cristal Shop (RDC) Cafétéria&#39;: [&#39;Plat à emporter en box en verre ou sur place&#39;, &#39;Merlu à la napolitaine&#39;, &quot;Carottes à l&#39;orientale&quot;, &#39;Riz pilaf&#39;, &#39;Jambalaya aux haricots rouges&#39;, &#39;Riz pilaf&#39;], &#39;Origines de nos viandes du jour&#39;: [&#39;menu non communiqué&#39;]}, &#39;Dîner&#39;: {&#39;Menus étudiants 2ème étage&#39;: [&#39;Cordon bleu, sauce tomate&#39;, &#39;Ruz biryani&#39;, &quot;Tajine d&#39;aubergines au fenouil&quot;, &#39;Boulgour&#39;], &#39;Desserts 2ème étage&#39;: [&#39;Desserts variés&#39;], &#39;Origines de nos viandes du jour&#39;: [&#39;Volaille origine France&#39;]}})}, &#39;&#39;: {&#39;Resto U Esplanade&#39;: Menu(date=&#39;&#39;, meals={&#39;&#39;: {&#39;Menus étudiants 1er et 2ème étage&#39;: [&#39;2ème étage :&#39;, &#39;Escalope viennoise, sauce arrabiata&#39;, &#39;Haricots verts&#39;, &#39;Frites&#39;, &#39;Galette de quinoa provençale, sauce arrabiata&#39;, &#39;Haricots verts&#39;, &#39;Kasha aux 3 céréales&#39;, &#39;1er étage :&#39;, &#39;Cordon bleu&#39;, &#39;Haricots verts&#39;, &#39;Kasha aux 3 céréales&#39;, &#39;Penne, sauce aux 2 saumons maison&#39;, &#39;Galette de quinoa provençale, sauce arrabiata&#39;, &#39;Haricots verts&#39;, &#39;Kasha aux 3 céréales&#39;], &#39;Desserts 1er et 2ème étage&#39;: [&#39;Desserts variés&#39;], &#39;Cristal Shop (RDC) Cafétéria&#39;: [&#39;Plat à emporter en box en verre ou sur place&#39;, &#39;Cordon bleu&#39;, &#39;Haricots verts&#39;, &#39;Kasha aux 3 céréales&#39;, &#39;Galette de quinoa provençale, sauce arrabiata&#39;, &#39;Haricots verts&#39;, &#39;Kasha aux 3 céréales&#39;], &#39;Origines de nos viandes du jour&#39;: [&#39;menu non communiqué&#39;], &#39;Menus étudiants 2ème étage&#39;: [&#39;Poisson pané, sauce rémoulade&#39;, &#39;Riz cantonnais&#39;], &#39;Desserts 2ème étage&#39;: [&#39;Desserts variés&#39;]}})}})
+
+scraper.close()</code></pre>
+</div>
+</div>
+</div>
+<div id="comparing-the-two-versions" class="section level2"
+number="3.4">
+<h2><span class="header-section-number">3.4</span> Comparing the two
+versions</h2>
+<div id="method-names" class="section level3" number="3.4.1">
+<h3><span class="header-section-number">3.4.1</span> Method names</h3>
+<table>
+<thead>
+<tr class="header">
+<th>V1 (from functions)</th>
+<th align="right">V2 (improved)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>get_all_links()</td>
+<td align="right">get_all_links()</td>
+</tr>
+<tr class="even">
+<td>get_page()</td>
+<td align="right">_get_page()</td>
+</tr>
+<tr class="odd">
+<td>get_date()</td>
+<td align="right">_get_date()</td>
+</tr>
+<tr class="even">
+<td>get_meal_type_and_poles()</td>
+<td align="right">_get_meal_type_and_poles()</td>
+</tr>
+<tr class="odd">
+<td>get_all_meals_from_resto_u()</td>
+<td align="right">get_all_meals_from_resto_u()</td>
+</tr>
+<tr class="even">
+<td>get_all_infos()</td>
+<td align="right">get_all_infos()</td>
+</tr>
+</tbody>
+</table>
+<p>Internal helpers start with <code>_</code> to show they are
+private.</p>
+</div>
+<div id="data-structures" class="section level3" number="3.4.2">
+<h3><span class="header-section-number">3.4.2</span> Data
+structures</h3>
+<p>V1 returns nested dictionaries:</p>
+<pre class="python"><code>{
+    &quot;Lundi 9 février&quot;: {
+        &quot;Restaurant Paul Appell&quot;: {
+            &quot;Déjeuner&quot;: {
+                &quot;Entrées&quot;: [&quot;Salade&quot;, &quot;Soupe&quot;],
+                &quot;Plats&quot;: [&quot;Lasagne&quot;, &quot;Poulet&quot;]
+            }
+        }
+    }
+}</code></pre>
+<p>V2 returns structured objects:</p>
+<pre class="python"><code>MenuCollection(
+    data = {
+        &quot;Lundi 9 février&quot;: {
+            &quot;Restaurant Paul Appell&quot;: Menu(
+                date = &quot;Lundi 9 février&quot;,
+                meals = {
+                    &quot;Déjeuner&quot;: {
+                        &quot;Entrées&quot;: [&quot;Salade&quot;, &quot;Soupe&quot;],
+                        &quot;Plats&quot;: [&quot;Lasagne&quot;, &quot;Poulet&quot;]
+                    }
+                }
+            )
+        }
+    }
+)</code></pre>
+</div>
+<div id="adding-features" class="section level3" number="3.4.3">
+<h3><span class="header-section-number">3.4.3</span> Adding
+features</h3>
+<p>Suppose we want to search for a specific dish across all restaurants
+and dates.</p>
+<p><strong>V1</strong>: we need to write a standalone function and pass
+the dictionary to it:</p>
+<div class="row">
+<div class="version1">
+<pre class="python"><code>def search_dish(all_resto_u_all_infos, dish_name):
+    results = []
+    for date, restaurants in all_resto_u_all_infos.items():
+        for resto, menu in restaurants.items():
+            for meal_type, poles in menu.items():
+                for pole, meal in poles.items():
+                    for dish in meal:
+                        if dish_name.lower() in dish.lower():
+                            results.append({
+                                &#39;date&#39;: date, &#39;restaurant&#39;: resto,
+                                &#39;meal_type&#39;: meal_type, &#39;pole&#39;: pole, &#39;dish&#39;: dish
+                            })
+    return results
+
+
+results = search_dish(all_resto_u_all_infos, &quot;pizza&quot;)</code></pre>
+</div>
+</div>
+<p><strong>V2</strong>: we add a method directly to
+<code>MenuCollection</code>:</p>
+<div class="row">
+<div class="version2">
+<pre class="python"><code># Inside the MenuCollection class, we add:
+    def search_dish(self, dish_name):
+        results = []
+        for date, restaurants in self.data.items():
+            for resto_name, menu in restaurants.items():
+                for meal_type, poles in menu.meals.items():
+                    for pole, meal in poles.items():
+                        for dish in meal:
+                            if dish_name.lower() in dish.lower():
+                                results.append({
+                                    &#39;date&#39;: date, &#39;restaurant&#39;: resto_name,
+                                    &#39;meal_type&#39;: meal_type, &#39;pole&#39;: pole, &#39;dish&#39;: dish
+                                })
+        return results
+
+scraper = CrousScraper()
+collection = scraper.get_all_infos()
+scraper.close()
+results = collection.search_dish(&quot;pizza&quot;)</code></pre>
+</div>
+</div>
+<p>In V2, the method is <strong>part of the object</strong>. We don’t
+need to pass the data, the object already has it via <code>self</code>.
+If we add 10 features, they are 10 methods in the class, all in one
+place. In V1, they would be 10 scattered functions.</p>
+</div>
+</div>
+<div id="running" class="section level2" number="3.5">
+<h2><span class="header-section-number">3.5</span> Running</h2>
+<div class="row">
+<div class="version2">
+<pre class="python"><code>def show_item(list_):
+    i = 1
+    for item in list_:
+        print(&#39;%s : %s&#39; % (str(i), item))
+        i += 1
+
+def main():
+    scraper = CrousScraper()
+    collection = scraper.get_all_infos()
+    scraper.close()
+    
+    quit = &#39;N&#39;
+    change_rest = &#39;Y&#39;
+    
+    while quit == &#39;N&#39;:
+        dates = collection.get_dates()
+        show_item(dates)
+        date_choosed = int(input(&#39;Select the date (type the number aside): &#39;))
+        
+        restaurants = collection.get_restaurants(dates[date_choosed - 1])
+        
+        while change_rest == &#39;Y&#39;:
+            print(&#39;---------------------------------------\n\n&#39;)
+            show_item(restaurants)
+            rest_choosed = int(input(&#39;Select the restaurant (type the number aside): &#39;))
+            
+            menu = collection.data[dates[date_choosed - 1]][restaurants[rest_choosed - 1]]
+            meal_keys = list(menu.meals.keys())
+            show_item(meal_keys)
+            meal_choosed = int(input(&#39;Select the meal (type the number aside): &#39;))
+            
+            meal = menu.meals[meal_keys[meal_choosed - 1]]
+            for pole in meal:
+                print(&#39;&#39;&#39;%s :
+                %s
+                  &#39;&#39;&#39; % (pole, meal[pole]))
+            
+            change_rest = input(&#39;Do you want to select another restaurant ? (Y/N): &#39;)
+        
+        quit = input(&#39;Do you want to quit ? (Y/N): &#39;)
+        if quit == &#39;N&#39;:
+            change_rest = &#39;Y&#39;
+
+main()</code></pre>
+</div>
+</div>
+<p>
+ 
+</p>
+<div
+style="border:1px solid; padding:10px; margin-bottom:10px; border-radius: 10px; background-color: #f9f9f9;">
+<p><strong>Exercise 1:</strong> Add a method
+<code>get_meal_types(self, date, restaurant_name)</code> to the
+<code>MenuCollection</code> class that returns the list of meal types
+(e.g., “Déjeuner”, “Dîner”) for a given date and restaurant.</p>
+<details>
+<summary>
+Click here to see the solution
+</summary>
+<pre class="python"><code># Inside MenuCollection:
+    def get_meal_types(self, date, restaurant_name):
+        return list(self.data[date][restaurant_name].meals.keys())</code></pre>
+</details>
+<p>
+ 
+</p>
+<p><strong>Exercise 2:</strong> Add a method
+<code>count_restaurants(self)</code> to <code>MenuCollection</code> that
+returns the total number of unique restaurants across all dates.</p>
+<details>
+<summary>
+Click here to see the solution
+</summary>
+<pre class="python"><code># Inside MenuCollection:
+    def count_restaurants(self):
+        all_restaurants = set()
+        for date in self.data:
+            for resto_name in self.data[date]:
+                all_restaurants.add(resto_name)
+        return len(all_restaurants)</code></pre>
+</details>
+</div>
+<p>
+ 
+</p>
+</div>
+</div>
+<div id="inheritance" class="section level1" number="4">
+<h1><span class="header-section-number">4</span> Inheritance</h1>
+<p>Python supports <strong>inheritance</strong>: a class can be built on
+top of another class, reusing and extending its code. The syntax is:</p>
+<pre class="python"><code>class DerivedClassName(BaseClassName):
+    ...</code></pre>
+<p>The derived class inherits all methods and attributes from the base
+class. It can then <strong>override</strong> existing methods (replace
+them with new behavior) or <strong>add</strong> new methods. The
+<code>super()</code> function lets you call methods from the base
+class.</p>
+<p>Let’s say we want to factor out the generic scraping logic (driver
+management, page navigation) from the specific CROUS logic (parsing
+menus, extracting dates). We can create a base class:</p>
+<div class="row">
+<div class="python">
+<pre class="python"><code>class BaseScraper:
+  
+    USER_AGENT = &#39;Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:147.0) Gecko/20100101 Firefox/147.0&#39;
+    
+    def __init__(self):
+        self.driver = None
+    
+    def _init_driver(self):
+        firefox_options = Options()
+        firefox_options.set_preference(&quot;general.useragent.override&quot;, self.USER_AGENT)
+        firefox_options.add_argument(&quot;--headless&quot;)
+        self.driver = webdriver.Firefox(options=firefox_options)
+    
+    def _get_page(self, url):
+        time.sleep(2 + random.uniform(0, 8))
+        self.driver.get(url)
+    
+    def close(self):
+        if self.driver:
+            self.driver.quit()
+            self.driver = None
+    </code></pre>
+</div>
+</div>
+<p><code>BaseScraper</code> contains all the logic that is common to any
+scraping task: managing the driver, navigating to a page, closing the
+browser.</p>
+<p>Now we can create specialized scrapers that inherit from
+<code>BaseScraper</code>. Each one gets <code>_init_driver()</code>,
+<code>_get_page()</code>, and <code>close()</code> for free, and only
+needs to implement its own <code>scrape()</code>:</p>
+<div class="row">
+<div class="python">
+<pre class="python"><code>class CrousScraper(BaseScraper):
+    
+    BASE_URL = &#39;https://www.crous-strasbourg.fr/se-restaurer/ou-manger/&#39;
+    
+    def __init__(self):
+        # super().__init__() calls BaseScraper.__init__()
+        super().__init__()
+        self._init_driver()  # inherited from BaseScraper
+    
+    def get_all_restaurants_links(self):
+        self.driver.get(self.BASE_URL)
+        elements = self.driver.find_elements(By.CSS_SELECTOR, &#39;li a&#39;)
+        
+        restaurants = []
+        for element in elements:
+            link = element.get_attribute(&quot;href&quot;)
+            if link and &#39;/restaurant/&#39; in link:
+                name = self._get_restaurant_name(link)
+                restaurants.append(Restaurant(name, link))
+        return restaurants
+    
+    def _get_restaurant_name(self, link):
+        name = re.findall(&#39;restaurant/(.*)/&#39;, link)[0]
+        name = re.sub(&#39;-&#39;, &#39; &#39;, name)
+        name = re.sub(&#39; 2&#39;, &#39;&#39;, name)
+        return name.title()
+    
+    def get_all_meals_from_resto_u(self, restaurant):
+        self._get_page(restaurant.url)
+        menu_elements = self.driver.find_elements(By.CLASS_NAME, &#39;menu&#39;)
+        
+        menu_collection = MenuCollection()
+        for menu_elem in menu_elements:
+            date = self._get_date(menu_elem)
+            menu = Menu(date)
+            
+            meal_elements = menu_elem.find_elements(By.CLASS_NAME, &#39;meal&#39;)
+            for meal_elem in meal_elements:
+                meal_type, pole_elements = self._get_meal_type_and_poles(meal_elem)
+                for pole_elem in pole_elements:
+                    pole, meal = self._get_meal_infos(pole_elem)
+                    menu.add_meal(meal_type, pole, meal)
+            
+            menu_collection.add_menu(date, restaurant.name, menu)
+        return menu_collection
+    
+    def _get_date(self, menu_elem):
+        date_elem = menu_elem.find_element(By.CLASS_NAME, &#39;menu_date_title&#39;)
+        return re.sub(&#39;Menu du &#39;, &#39;&#39;, date_elem.text)
+    
+    def _get_meal_type_and_poles(self, meal_elem):
+        meal_type = meal_elem.find_element(By.CLASS_NAME, &quot;meal_title&quot;).text
+        pole_elements = meal_elem.find_elements(By.CSS_SELECTOR, &#39;ul.meal_foodies &gt; li&#39;)
+        return meal_type, pole_elements
+    
+    def _get_meal_infos(self, pole_elem):
+        pole_html = pole_elem.get_attribute(&#39;innerHTML&#39;)
+        pole, meal_infos = pole_html.split(&quot;&lt;ul&gt;&lt;li&gt;&quot;)
+        meal_infos = meal_infos.split(&#39;&lt;/li&gt;&lt;li&gt;&#39;)
+        meal_infos = [re.sub(&#39;&lt;/li&gt;&lt;/ul&gt;&#39;,&#39;&#39;,meal) for meal in meal_infos if meal != &#39;-&#39;]
+        return pole, meal_infos
+    
+    def get_all_infos(self):
+        restaurants = self.get_all_links()
+        all_menus = MenuCollection()
+        for restaurant in restaurants:
+            resto_menus = self.get_all_meals_from_resto_u(restaurant)
+            for date in resto_menus.data.keys():
+                for resto_name, menu in resto_menus.data[date].items():
+                    all_menus.add_menu(date, resto_name, menu)
+        return all_menus</code></pre>
+</div>
+</div>
+<p>Let’s test it — <code>CrousScraper</code> now inherits
+<code>_init_driver()</code>, <code>_get_page()</code>, and
+<code>close()</code> from <code>BaseScraper</code> without rewriting
+them:</p>
+<div class="row">
+<div class="python">
+<pre class="python"><code>scraper = CrousScraper()
+
+# Scrape Resto U Esplanade
+esplanade = Restaurant(&#39;Resto U Esplanade&#39;, &#39;https://www.crous-strasbourg.fr/restaurant/resto-u-esplanade-2/&#39;)
+collection = scraper.get_all_meals_from_resto_u(esplanade)
+print(collection)
+## MenuCollection(data={&#39;lundi 9 février 2026&#39;: {&#39;Resto U Esplanade&#39;: Menu(date=&#39;lundi 9 février 2026&#39;, meals={&#39;Déjeuner&#39;: {&#39;Menus étudiants 1er et 2ème étage&#39;: [&#39;2ème étage :&#39;, &#39;Cheeseburger&#39;, &#39;Carottes&#39;, &#39;Frites&#39;, &#39;Jambalaya aux haricots rouges&#39;, &#39;Riz pilaf&#39;, &#39;1er étage :&#39;, &#39;Merlu à la napolitaine&#39;, &quot;Carottes à l&#39;orientale&quot;, &#39;Riz pilaf&#39;, &#39;Penne, sauce bolognaise maison&#39;, &#39;Jambalaya aux haricots rouges&#39;, &#39;Riz pilaf&#39;], &#39;Desserts 1er et 2ème étage&#39;: [&#39;Desserts variés&#39;], &#39;Cristal Shop (RDC) Cafétéria&#39;: [&#39;Plat à emporter en box en verre ou sur place&#39;, &#39;Merlu à la napolitaine&#39;, &quot;Carottes à l&#39;orientale&quot;, &#39;Riz pilaf&#39;, &#39;Jambalaya aux haricots rouges&#39;, &#39;Riz pilaf&#39;], &#39;Origines de nos viandes du jour&#39;: [&#39;menu non communiqué&#39;]}, &#39;Dîner&#39;: {&#39;Menus étudiants 2ème étage&#39;: [&#39;Cordon bleu, sauce tomate&#39;, &#39;Ruz biryani&#39;, &quot;Tajine d&#39;aubergines au fenouil&quot;, &#39;Boulgour&#39;], &#39;Desserts 2ème étage&#39;: [&#39;Desserts variés&#39;], &#39;Origines de nos viandes du jour&#39;: [&#39;Volaille origine France&#39;]}})}, &#39;&#39;: {&#39;Resto U Esplanade&#39;: Menu(date=&#39;&#39;, meals={&#39;&#39;: {&#39;Menus étudiants 1er et 2ème étage&#39;: [&#39;2ème étage :&#39;, &#39;Escalope viennoise, sauce arrabiata&#39;, &#39;Haricots verts&#39;, &#39;Frites&#39;, &#39;Galette de quinoa provençale, sauce arrabiata&#39;, &#39;Haricots verts&#39;, &#39;Kasha aux 3 céréales&#39;, &#39;1er étage :&#39;, &#39;Cordon bleu&#39;, &#39;Haricots verts&#39;, &#39;Kasha aux 3 céréales&#39;, &#39;Penne, sauce aux 2 saumons maison&#39;, &#39;Galette de quinoa provençale, sauce arrabiata&#39;, &#39;Haricots verts&#39;, &#39;Kasha aux 3 céréales&#39;], &#39;Desserts 1er et 2ème étage&#39;: [&#39;Desserts variés&#39;], &#39;Cristal Shop (RDC) Cafétéria&#39;: [&#39;Plat à emporter en box en verre ou sur place&#39;, &#39;Cordon bleu&#39;, &#39;Haricots verts&#39;, &#39;Kasha aux 3 céréales&#39;, &#39;Galette de quinoa provençale, sauce arrabiata&#39;, &#39;Haricots verts&#39;, &#39;Kasha aux 3 céréales&#39;], &#39;Origines de nos viandes du jour&#39;: [&#39;menu non communiqué&#39;], &#39;Menus étudiants 2ème étage&#39;: [&#39;Poisson pané, sauce rémoulade&#39;, &#39;Riz cantonnais&#39;], &#39;Desserts 2ème étage&#39;: [&#39;Desserts variés&#39;]}})}})
+
+scraper.close()</code></pre>
+</div>
+</div>
+</div>
+<div id="exercise" class="section level1" number="5">
+<h1><span class="header-section-number">5</span> Exercise</h1>
+<p>Rewrite your code from Chapter 2 into a class</p>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = false;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
