@@ -13,6 +13,8 @@ navbar:
       href: 2_Scrapping.html
     - text: "OOP"
       href: 3_OOP.html
+    - text: "Efficient Prog"
+      href: 4_Efficient_prog.html
   right:
     - icon: fa-github fa-lg
       href: https://github.com/master-ds2e/

@@ -338,6 +338,9 @@ div.tocify {
 <li>
   <a href="3_OOP.html">OOP</a>
 </li>
+<li>
+  <a href="4_Efficient_prog.html">Efficient Prog</a>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
@@ -400,22 +403,22 @@ import time
 process = psutil.Process(os.getpid())
 
 t = time.time()
-r1 = process.memory_info().rss 
+r1 = process.memory_info().rss
+
 def read_file_to_lower():
-  with open(&quot;data/text.txt&quot;, &quot;r&quot;) as txt:
-    txt_list = txt.read().split(&#39;\n&#39;)
-    txt_list_low = [re.sub(&#39; &#39;,&#39;&#39;,row.lower()) for row in txt_list]
-  return txt_list_low
-
+    with open(&quot;data/text.txt&quot;, &quot;r&quot;) as txt:
+        txt_list = txt.read().split(&#39;\n&#39;)
+        txt_list_low = [re.sub(&#39; &#39;,&#39;&#39;,row.lower().strip()) for row in txt_list]
+    return txt_list_low
+  
 txt_clean = read_file_to_lower()
-
-process.memory_info().rss - r1 # in bytes
-## 524288
-time.time() - t
-## 0.0037550926208496094
-
-type(txt_clean)
-## &lt;class &#39;list&#39;&gt;</code></pre>
+total_chars = sum(len(line) for line in txt_clean)
+print(time.time() - t)
+## 0.0036177635192871094
+print(f&quot;RAM : {process.memory_info().rss - r1} bytes&quot;)
+## RAM : 720896 bytes
+print(f&quot;Total chars : {total_chars}&quot;)
+## Total chars : 7893</code></pre>
 </div>
 </div>
 <div class="col-md-6">
@@ -428,24 +431,17 @@ t = time.time()
 r1 = process.memory_info().rss 
 
 def read_to_lower():
-  with open(&quot;data/text.txt&quot;, &quot;r&quot;) as txt:
-    txt_line = txt.readline()
-    while txt_line:
-      txt_line = txt.readline()
-      yield re.sub(&#39; &#39;,&#39;&#39;,txt_line.lower())
+    with open(&quot;data/text.txt&quot;, &quot;r&quot;) as txt:
+        for txt_line in txt:
+            yield re.sub(&#39; &#39;,&#39;&#39;,txt_line.lower().strip())
 
-
-memory_friendly_txt_clean = read_to_lower()
-txt_clean = [line_clean for line_clean in memory_friendly_txt_clean]
-
-process.memory_info().rss - r1 # in bytes
-## 180224
-time.time() - t
-## 0.004378080368041992
-
-
-type(memory_friendly_txt_clean)
-## &lt;class &#39;generator&#39;&gt;</code></pre>
+total_chars = sum(len(line) for line in read_to_lower())
+print(time.time() - t)
+## 0.003016948699951172
+print(f&quot;RAM : {process.memory_info().rss - r1} bytes&quot;)
+## RAM : 81920 bytes
+print(f&quot;Total chars : {total_chars}&quot;)
+## Total chars : 7893</code></pre>
 </div>
 </div>
 </div>
@@ -470,35 +466,32 @@ when changing the format to sparse matrix .</p>
 <pre class="python"><code># Python 
 import numpy as np
 from scipy.sparse import csr_matrix
-## ModuleNotFoundError: No module named &#39;scipy&#39;
-#from pympler import asizeof
+from pympler import asizeof
 
 X = np.zeros(10000**2)
-idx = np.random.randint(1,10000**2,1000)
+idx = np.random.randint(1, 10000**2, 1000)
 X[idx] = 1
+X = X.reshape(10000, 10000)
 
-X = X.reshape(10000,10000)
-
-#asizeof.asizeof(X)/1e+6
+print(f&quot;Dense : {X.nbytes / 1e6:.1f} Mo&quot;) 
+## Dense : 800.0 Mo
 
 sparse_X = csr_matrix(X)
-## NameError: name &#39;csr_matrix&#39; is not defined
-sparse_X
-## NameError: name &#39;sparse_X&#39; is not defined
-#asizeof.asizeof(sparse_X)/1e+6</code></pre>
+sparse_nbytes = sparse_X.data.nbytes + sparse_X.indices.nbytes + sparse_X.indptr.nbytes
+print(f&quot;Sparse : {sparse_nbytes / 1e6:.4f} Mo&quot;)
+## Sparse : 0.0520 Mo</code></pre>
 <pre class="python"><code># Python 
 import time
 
 t = time.time()
 sum_x = X+X
 time.time() - t
-## 0.0825948715209961
+## 0.047968149185180664
 
 t = time.time()
 sum_sparse_x = sparse_X+sparse_X
-## NameError: name &#39;sparse_X&#39; is not defined
 time.time() - t
-## 0.002737283706665039</code></pre>
+## 0.0014789104461669922</code></pre>
 </div>
 </div>
 <div class="col-md-6">
@@ -523,12 +516,12 @@ library(tictoc)
 tic()
 sum_x = X+X
 toc()
-## 0.11 sec elapsed
+## 0.047 sec elapsed
 
 tic()
 sum_sparse_x = sparse_X+sparse_X
 toc()
-## 0.003 sec elapsed</code></pre>
+## 0.056 sec elapsed</code></pre>
 </div>
 </div>
 </div>
@@ -560,7 +553,6 @@ sample</li>
 </ul>
 <pre class="python"><code># Python 
 from sklearn.linear_model import LinearRegression
-## ModuleNotFoundError: No module named &#39;sklearn&#39;
 
 def lm_bs():
     idx_sample = np.random.randint(0,len(y),len(y))
@@ -579,16 +571,14 @@ t = time.time()
 coefs = np.empty((500,2), float)
 for i in range(500):
     coefs[i,:] = lm_bs()
-## NameError: name &#39;LinearRegression&#39; is not defined
 time.time() - t
-## 0.004491090774536133</code></pre>
+## 1.5632269382476807</code></pre>
 <ul>
 <li>Check how many cores you can use</li>
 </ul>
 <pre class="python"><code># Python
 
 from joblib import Parallel, delayed
-## ModuleNotFoundError: No module named &#39;joblib&#39;
 import multiprocessing
 num_cores = multiprocessing.cpu_count()
 print(num_cores)
@@ -634,7 +624,7 @@ for(i in 1:500){
   coefs[i,] = lm_bs()
 }
 toc()
-## 5.766 sec elapsed</code></pre>
+## 5.776 sec elapsed</code></pre>
 <ul>
 <li>Check how many cores you can use</li>
 </ul>
@@ -658,7 +648,7 @@ coefs =  foreach(i = 1:500,.packages = c(&#39;base&#39;)) %dopar% {
                    }
 
 toc()
-## 1.55 sec elapsed</code></pre>
+## 1.396 sec elapsed</code></pre>
 </div>
 </div>
 </div>
@@ -683,197 +673,136 @@ block is relatively inexpensive. However, when an exception does occur,
 the cost is much higher.</p>
 <div class="row">
 <div class="col-md-6">
-<div class="python">
-<pre class="python"><code># Python 
-import numpy as np
+<div id="python" class="section level2 python" number="4.1">
+<h2><span class="header-section-number">4.1</span> Python</h2>
+<pre class="python"><code>import time
 import random
 
-# Let&#39;s create a function that create a dirty list
-def create_dirty_list(None_prop):
-  list_ = list()
-  for i in range(10000):
-    if i&lt;None_prop*10000:
-      list_.append([None])
-    else:
-      values = random.sample(range(1, 1000), random.sample(range(1, 50),1)[0])
-      # introduce some character 
-      if i%10==0 :
-        values = [str(i) for i in values]
-      list_.append(values)
-  return list_
+N = 500000
 
-# randomly take two values to compute the ratio 
-def calc1(values):
-  output = values[random.sample(range(1, len(values)+1),1)[0]-1]/values[random.sample(range(1, len(values)+1),1)[0]-1]
-  return output
+def make_list(zero_prop):
+    return [0 if i &lt; zero_prop * N else random.randint(1, 100) for i in range(N)]
 
-list_ = create_dirty_list(0.5)
-# Store it in a list
-results = [calc1(values) for  values in list_]
-## TypeError: unsupported operand type(s) for /: &#39;NoneType&#39; and &#39;NoneType&#39;</code></pre>
-<pre class="python"><code># Let&#39;s change the function
+# if/else approach
+def div_if(x):
+    if x != 0:
+        return 1 / x
+    return None
 
-def calc2(values):
-  if not any(value is None for value in values): 
-    output = values[random.sample(range(1, len(values)+1),1)[0]-1]/values[random.sample(range(1, len(values)+1),1)[0]-1]
-    return output
+# try/except approach
+def div_try(x):
+    try:
+        return 1 / x
+    except:
+        return None</code></pre>
+<div id="errors" class="section level3" number="4.1.1">
+<h3><span class="header-section-number">4.1.1</span> 1% errors</h3>
+<pre class="python"><code>data = make_list(0.01)
+t = time.time()
+res = [div_if(x) for x in data]
+print(f&quot;if/else:    {time.time()-t:.4f}s&quot;)
+## if/else:    0.0203s
 
-results = [calc2(values) for values in list_]
-## TypeError: unsupported operand type(s) for /: &#39;str&#39; and &#39;str&#39;</code></pre>
-<pre class="python"><code># Let&#39;s change the function
+t = time.time()
+res = [div_try(x) for x in data]
+print(f&quot;try/except: {time.time()-t:.4f}s&quot;)
+## try/except: 0.0198s</code></pre>
+</div>
+<div id="errors-1" class="section level3" number="4.1.2">
+<h3><span class="header-section-number">4.1.2</span> 50% errors</h3>
+<pre class="python"><code>data = make_list(0.50)
+t = time.time()
+res = [div_if(x) for x in data]
+print(f&quot;if/else:    {time.time()-t:.4f}s&quot;)
+## if/else:    0.0191s
 
-def calc3(values):
-  if not any(value is None for value in values): 
-    if all(isinstance(value,int) for value in values):
-      output = values[random.sample(range(1, len(values)+1),1)[0]-1]/values[random.sample(range(1, len(values)+1),1)[0]-1]
-      return output 
+t = time.time()
+res = [div_try(x) for x in data]
+print(f&quot;try/except: {time.time()-t:.4f}s&quot;)
+## try/except: 0.0334s</code></pre>
+</div>
+<div id="errors-2" class="section level3" number="4.1.3">
+<h3><span class="header-section-number">4.1.3</span> 90% errors</h3>
+<pre class="python"><code>data = make_list(0.90)
+t = time.time()
+res = [div_if(x) for x in data]
+print(f&quot;if/else:    {time.time()-t:.4f}s&quot;)
+## if/else:    0.0167s
 
-results = [calc3(values) for values in list_]</code></pre>
-<pre class="python"><code># using try
-
-def calc_try(values):
-  try:
-    output = values[random.sample(range(1, len(values)+1),1)[0]-1]/values[random.sample(range(1, len(values)+1),1)[0]-1]
-  except:
-    output = None
-  return output
-    
-results = [calc_try(values) for values in list_]</code></pre>
-<ul>
-<li>Compare execution time</li>
-</ul>
-<pre class="python"><code>list_ = create_dirty_list(0.01)
-t= time.time()
-results = [calc3(values) for values in list_]
-time.time()-t
-## 0.022443056106567383
-t= time.time()
-results = [calc_try(values) for values in list_]
-time.time()-t
-## 0.01331782341003418</code></pre>
-<pre class="python"><code>list_ = create_dirty_list(0.33)
-t= time.time()
-results = [calc3(values) for values in list_]
-time.time()-t
-## 0.015450716018676758
-t= time.time()
-results = [calc_try(values) for values in list_]
-time.time()-t
-## 0.013694047927856445</code></pre>
-<pre class="python"><code>list_ = create_dirty_list(0.75)
-t= time.time()
-results = [calc3(values) for values in list_]
-time.time()-t
-## 0.007397174835205078
-t= time.time()
-results = [calc_try(values) for values in list_]
-time.time()-t
-## 0.013455867767333984</code></pre>
+t = time.time()
+res = [div_try(x) for x in data]
+print(f&quot;try/except: {time.time()-t:.4f}s&quot;)
+## try/except: 0.0464s</code></pre>
+</div>
 </div>
 </div>
 <div class="col-md-6">
-<div class="r">
-<pre class="r"><code># R
-# Let&#39;s create a function that create a list 
-create_dirty_list &lt;- function(None_prop){
-  list_ &lt;- list()
-  for(i in seq(1,10000,1)){
-    if(i&lt;None_prop*10000){
-      list_[[i]] &lt;- c(NA)
-      } else {
-      values &lt;- sample(seq(1,10000,1),round(runif(1,1,50)))
-      # introduce some character 
-      if(i%%10==0){
-        values &lt;- as.character(values)
-      list_[[i]] &lt;- values
-      }
-      }
-  }
-  return(list_)
-  }
+<div id="r" class="section level2 r" number="4.2">
+<h2><span class="header-section-number">4.2</span> R</h2>
+<pre class="r"><code>N &lt;- 500000
 
-# randomly take two values to compute the ratio 
-calc1 &lt;- function(values){
-  output &lt;- values[round(runif(1,1,length(values)))]/values[round(runif(1,1,length(values)))]
-  return(output)
+make_list &lt;- function(zero_prop) {
+  c(rep(0, zero_prop * N), sample(1:100, (1 - zero_prop) * N, replace = TRUE))
 }
 
-list_ &lt;- create_dirty_list(0.5)
-# Store it in a list
-results &lt;- lapply(list_,FUN = calc1)</code></pre>
-<pre><code>## Error in values[round(runif(1, 1, length(values)))]/values[round(runif(1, : non-numeric argument to binary operator</code></pre>
-<pre class="r"><code># Let&#39;s change the function
-
-calc2 &lt;- function(values){
-  if(!any(is.na(values))){
-    output &lt;- values[round(runif(1,1,length(values)))]/values[round(runif(1,1,length(values)))]
-    return(output)
-  }
+# if/else approach
+div_if &lt;- function(x) {
+  if (x != 0) return(1 / x)
+  return(NA)
 }
 
+# tryCatch approach
+div_try &lt;- function(x) {
+  tryCatch(
+    { 1 / x },
+    error = function(e) NA
+  )
+}</code></pre>
+<div id="errors-3" class="section level3" number="4.2.1">
+<h3><span class="header-section-number">4.2.1</span> 1% errors</h3>
+<pre class="r"><code>data &lt;- make_list(0.01)
 
-results &lt;- lapply(list_,FUN = calc2)</code></pre>
-<pre><code>## Error in values[round(runif(1, 1, length(values)))]/values[round(runif(1, : non-numeric argument to binary operator</code></pre>
-<pre class="r"><code># Let&#39;s change the function
-
-calc3 &lt;- function(values){
-  if(!any(is.na(values))){
-    if(is.numeric(values)){
-      output &lt;- values[round(runif(1,1,length(values)))]/values[round(runif(1,1,length(values)))]
-      return(output)
-    }
-  }
-}
-
-
-
-results &lt;- lapply(list_,FUN = calc3)</code></pre>
-<pre class="r"><code># using try
-
-calc_try &lt;- function(values){
-  output &lt;- tryCatch(
-    {
-      values[round(runif(1,1,length(values)))]/values[round(runif(1,1,length(values)))]
-    }
-    ,error=function(e){
-      return(NA)
-    })
-  return(output)
-}
-    
-results &lt;- lapply(list_,FUN = calc_try)</code></pre>
-<ul>
-<li>Compare execution time</li>
-</ul>
-<pre class="r"><code>list_ &lt;- create_dirty_list(0.01)
 t &lt;- Sys.time()
-results &lt;- lapply(list_,FUN = calc3)
-Sys.time()-t</code></pre>
-<pre><code>## Time difference of 0.008611202 secs</code></pre>
-<pre class="r"><code>t &lt;- Sys.time()
-results &lt;- lapply(list_,FUN = calc_try)
-Sys.time()-t</code></pre>
-<pre><code>## Time difference of 1.114426 secs</code></pre>
-<pre class="r"><code># compare it 
-list_ = create_dirty_list(0.33)
+res &lt;- lapply(data, div_if)
+cat(&quot;if/else:   &quot;, format(Sys.time() - t))
+## if/else:    0.1896641 secs
+
+
 t &lt;- Sys.time()
-results &lt;- lapply(list_,FUN = calc3)
-Sys.time()-t</code></pre>
-<pre><code>## Time difference of 0.04197383 secs</code></pre>
-<pre class="r"><code>t &lt;- Sys.time()
-results &lt;- lapply(list_,FUN = calc_try)
-Sys.time()-t</code></pre>
-<pre><code>## Time difference of 0.7237399 secs</code></pre>
-<pre class="r"><code># compare it 
-list_ = create_dirty_list(0.75)
+res &lt;- lapply(data, div_try)
+cat(&quot;if/else:   &quot;, format(Sys.time() - t))
+## if/else:    1.143055 secs</code></pre>
+</div>
+<div id="errors-4" class="section level3" number="4.2.2">
+<h3><span class="header-section-number">4.2.2</span> 50% errors</h3>
+<pre class="r"><code>data &lt;- make_list(0.50)
+
 t &lt;- Sys.time()
-results &lt;- lapply(list_,FUN = calc3)
-Sys.time()-t</code></pre>
-<pre><code>## Time difference of 0.004322052 secs</code></pre>
-<pre class="r"><code>t &lt;- Sys.time()
-results &lt;- lapply(list_,FUN = calc_try)
-Sys.time()-t</code></pre>
-<pre><code>## Time difference of 0.3097081 secs</code></pre>
+res &lt;- lapply(data, div_if)
+cat(&quot;if/else:   &quot;, format(Sys.time() - t))
+## if/else:    0.10814 secs
+
+
+t &lt;- Sys.time()
+res &lt;- lapply(data, div_try)
+cat(&quot;if/else:   &quot;, format(Sys.time() - t))
+## if/else:    1.15598 secs</code></pre>
+</div>
+<div id="errors-5" class="section level3" number="4.2.3">
+<h3><span class="header-section-number">4.2.3</span> 90% errors</h3>
+<pre class="r"><code>data &lt;- make_list(0.90)
+
+t &lt;- Sys.time()
+res &lt;- lapply(data, div_if)
+cat(&quot;if/else:   &quot;, format(Sys.time() - t))
+## if/else:    0.09379005 secs
+
+
+t &lt;- Sys.time()
+res &lt;- lapply(data, div_try)
+cat(&quot;if/else:   &quot;, format(Sys.time() - t))
+## if/else:    1.193514 secs</code></pre>
+</div>
 </div>
 </div>
 </div>
